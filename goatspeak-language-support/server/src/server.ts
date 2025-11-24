@@ -71,16 +71,46 @@ documents.onDidChangeContent(change => {
     const diagnostics: Diagnostic[] = []
 
     const lines = text.split(/\r?\n/)
-    lines.forEach((line: string, i: number) => {
-        if (line.trim() && !line.trim().endsWith(';')) {
+
+    lines.forEach((line, i) => {
+        const trimmed = line.trim()
+        if (!trimmed) return
+
+        // Skip full-line comments
+        if (trimmed.startsWith("[") && trimmed.endsWith("]")) return
+        if (/^!Goatspeak:?/.test(trimmed)) return // <-- handles !Goatspeak or !Goatspeak:
+        
+        // Strip inline comments outside quotes
+        let inSingleQuote = false
+        let inDoubleQuote = false
+        let codeOnly = ""
+
+        for (let j = 0; j < line.length; j++) {
+            const char = line[j]
+
+            // Track quote state
+            if (char === '"' && !inSingleQuote) inDoubleQuote = !inDoubleQuote
+            if (char === "'" && !inDoubleQuote) inSingleQuote = !inSingleQuote
+
+            // Start of inline comment outside quotes
+            if (!inSingleQuote && !inDoubleQuote && char === '/' && line[j + 1] === '/') break
+
+            codeOnly += char
+        }
+
+        const finalCode = codeOnly.trim()
+        if (!finalCode) return
+
+        // Check semicolon
+        if (!finalCode.endsWith(";")) {
             diagnostics.push({
                 severity: DiagnosticSeverity.Warning,
                 range: {
                     start: { line: i, character: 0 },
                     end: { line: i, character: line.length }
                 },
-                message: 'Missing semicolon at end of line',
-                source: 'goat-lsp'
+                message: "Missing semicolon at end of line",
+                source: "goat-lsp"
             })
         }
     })

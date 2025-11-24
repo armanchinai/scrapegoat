@@ -40,6 +40,10 @@
 					"begin": "\\[",
 					"end": "\\]",
 					"name": "comment.block.bracket.goat"
+				},
+				{
+					"name": "comment.line.goatspeak",
+					"match": "^\\s*!Goatspeak:?.*$"
 				}
 			]
 		},
