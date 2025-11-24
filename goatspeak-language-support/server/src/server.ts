@@ -164,18 +164,29 @@ documents.onDidChangeContent(change => {
     const diagnostics: Diagnostic[] = []
 
     const lines = text.split(/\r?\n/)
-    let state = 0
 
-    const resetState = () => { state = 0 }
+    let hasVisit = false
+    let hasOutput = false
+    let visitLine = -1
+
+    let state = 0
+    let lastCommand = ""
+    let hasRunCommand = false // Tracks if any non-VISIT command has executed
+
+    const resetState = () => {
+        state = 0
+        hasRunCommand = false
+    }
 
     const isCommand = (word: string) =>
-        ["SELECT", "SCRAPE", "EXTRACT", "OUTPUT"].includes(word)
+        ["VISIT", "SELECT", "SCRAPE", "EXTRACT", "OUTPUT"].includes(word)
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim()
         if (!line) continue
         if (line.startsWith("[") && line.endsWith("]")) {
-            resetState() // New query block
+            resetState()
+            lastCommand = ""
             continue
         }
         if (/^!Goatspeak:?/.test(line)) continue
@@ -183,6 +194,37 @@ documents.onDidChangeContent(change => {
         const firstWord = line.split(/\s+/)[0]
         if (!isCommand(firstWord)) continue
 
+        // VISIT checks
+        if (firstWord === "VISIT") {
+            if (!hasVisit) {
+                hasVisit = true
+                visitLine = i
+            } else if (hasRunCommand) {
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Error,
+                    range: { start: { line: i, character: 0 }, end: { line: i, character: line.length } },
+                    message: "VISIT must occur before any other commands. Subsequent VISITs can only appear before a new SCRAPE or SELECT.",
+                    source: "goat-lsp"
+                })
+            }
+            lastCommand = "VISIT"
+            continue
+        }
+
+        // Track OUTPUT
+        if (firstWord === "OUTPUT") hasOutput = true
+
+        // Ensure VISIT before any other command
+        if (!hasVisit) {
+            diagnostics.push({
+                severity: DiagnosticSeverity.Error,
+                range: { start: { line: i, character: 0 }, end: { line: i, character: line.length } },
+                message: "You must have a VISIT command before running any other commands.",
+                source: "goat-lsp"
+            })
+        }
+
+        // Command-order validation
         switch (firstWord) {
             case "SELECT":
                 if (state !== 0) {
@@ -195,7 +237,6 @@ documents.onDidChangeContent(change => {
                 }
                 state = 1
                 break
-
             case "SCRAPE":
                 if (![0,1,2].includes(state)) {
                     diagnostics.push({
@@ -207,7 +248,6 @@ documents.onDidChangeContent(change => {
                 }
                 state = 2
                 break
-
             case "EXTRACT":
                 if (state !== 2) {
                     diagnostics.push({
@@ -219,7 +259,6 @@ documents.onDidChangeContent(change => {
                 }
                 state = 3
                 break
-
             case "OUTPUT":
                 if (![2,3].includes(state)) {
                     diagnostics.push({
@@ -233,56 +272,17 @@ documents.onDidChangeContent(change => {
                 break
         }
 
-        // Reset state if next line starts a new SELECT or [query]
+        lastCommand = firstWord
+        if (firstWord !== "VISIT") hasRunCommand = true
+
+        // Reset state at new SELECT or [query]
         const nextLine = (lines[i+1] || "").trim()
         if (["SELECT"].includes(nextLine.split(/\s+/)[0]) || (nextLine.startsWith("[") && nextLine.endsWith("]"))) {
             resetState()
         }
     }
 
-    connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
-})
-
-documents.onDidChangeContent(change => {
-    const text = change.document.getText()
-    const diagnostics: Diagnostic[] = []
-
-    const lines = text.split(/\r?\n/)
-
-    let hasVisit = false
-    let hasOutput = false
-    let visitLine = -1
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim()
-        if (!line) continue
-        if (line.startsWith("[") && line.endsWith("]")) continue
-        if (/^!Goatspeak:?/.test(line)) continue
-
-        const firstWord = line.split(/\s+/)[0]
-
-        // Track VISIT / OUTPUT for file-level checks
-        if (firstWord === "VISIT") {
-            hasVisit = true
-            if (visitLine === -1) visitLine = i
-        }
-        if (firstWord === "OUTPUT") {
-            hasOutput = true
-        }
-
-        // Ensure VISIT happens before any other command
-        const otherCommands = ["SELECT", "SCRAPE", "EXTRACT"]
-        if (otherCommands.includes(firstWord) && !hasVisit) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Error,
-                range: { start: { line: i, character: 0 }, end: { line: i, character: line.length } },
-                message: "You must have a VISIT command before running any other commands.",
-                source: "goat-lsp"
-            })
-        }
-    }
-
-    // File-level warnings / errors
+    // File-level checks
     if (!hasVisit) {
         diagnostics.push({
             severity: DiagnosticSeverity.Error,
@@ -303,6 +303,8 @@ documents.onDidChangeContent(change => {
 
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 })
+
+
 
 
 
