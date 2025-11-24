@@ -177,7 +177,7 @@ class ControlPanel(VerticalGroup):
 			id="ctrl-buttons",
 		)
 
-		yield ListView()
+		yield ListView(id="query-view")
 
 	def update_node(self, node: NodeWrapper):
 		self.node_details["node_desc"].clear()
@@ -263,6 +263,13 @@ class ControlPanel(VerticalGroup):
 		list_item = self.current_node.query_item
 		list_item.children[0].remove()
 		list_item.mount(Static(new_instr))
+
+	def remove_query(self, query):
+		for item in self.query_nodes:
+			if item.get_retrieval_instructions() == query:
+				self.query_nodes.remove(item)
+				item.query_item.remove()
+				return
 	
 	def remove_node(self):
 		if self.current_node and self.current_node in self.query_nodes:
@@ -352,10 +359,6 @@ class AppendQueryModal(ModalScreen):
 	BINDINGS = [
 		("escape", "app.pop_screen", "Exit")
 	]
-
-	class ClauseWrapper():
-		def __init__(self):
-			self.type = -1 # 0: Selector, 1: Output
 
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
@@ -472,9 +475,23 @@ class RemoveQueryModal(ModalScreen):
 		("escape", "app.pop_screen", "Exit")
 	]
 
+	def __init__(self, *kwargs):
+		super().__init__(*kwargs)
+
+	def compose(self):
+		with HorizontalGroup():
+			yield Button("Remove Query", variant="error", id="remove-query-yes")
+			yield Button("Cancel", variant="default", id="remove-query-no")
+		
+	def on_button_pressed(self, event: Button.Pressed):
+		if event.button.id == "remove-query-yes":
+			self.dismiss(True)
+		elif event.button.id == "remove-query-no":
+			self.dismiss(False)
+
 class Loom(App):
 	CSS_PATH = str(files("scrapegoat_loom").joinpath("gui-styles/tapestry.tcss"))
-	SCREENS = {"find": FindModal, "set-url": SetURLModal, "add-query": AppendQueryModal}
+	SCREENS = {"find": FindModal, "set-url": SetURLModal, "add-query": AppendQueryModal, "remove-query": RemoveQueryModal}
 	BINDINGS = [
 		Binding("ctrl+n", "add_remove_node", "Add/Remove Node", priority=True, tooltip="Adds or removes the selected node."),
 		Binding("ctrl+f", "push_screen('find')", "Search Tree", tooltip="Shows the node search widget."),
@@ -492,6 +509,7 @@ class Loom(App):
 		self.nodes = {}
 		self.current_search_nodes = []
 		self.search_node_index = 0
+		self.selected_query = ""
 
 	def get_system_commands(self, screen):
 		yield from super().get_system_commands(screen)
@@ -556,6 +574,15 @@ class Loom(App):
 
 	def action_toggle_insert_query(self) -> None:
 		self.push_screen("add-query", lambda x: self.control_panel.append_query(x))
+
+	def action_toggle_remove_query(self) -> None:
+		if self.selected_query != None and self.selected_query[:5] != "VISIT":
+			self.push_screen("remove-query", lambda x: self.remove_query(x))
+
+	def remove_query(self, confirm) -> None:
+		if confirm:
+			self.control_panel.remove_query(self.selected_query)
+			self.selected_query = None
 
 	def update_url(self) -> None:
 		if self.url == self.prev_url:
@@ -630,6 +657,9 @@ class Loom(App):
 				if len(self.current_search_nodes) > 0:
 					self.search_node_index = 0
 					self.query_one(Tree).move_cursor(self.current_search_nodes[self.search_node_index].branch, True)
+
+	def on_list_view_selected(self, event: ListView.Selected):
+		self.selected_query = event.item.query_one(Static).render()
 
 	def compose(self):
 		yield Header(name="ScrapeGoat", icon="🐐")
