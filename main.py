@@ -12,7 +12,7 @@ def main():
     # shepherd.herd("example.goat")
 
     # LOOM EXAMPLE
-    # Loom().weave()
+    Loom().weave()
 
 
 if __name__ == "__main__":

@@ -139,7 +139,6 @@ class DeliverCommand(Command):
         all_nodes.append(flattened)
         return node_copy
 
-
     def _to_csv(self, nodes: list) -> None:
         """
         """
