@@ -41,7 +41,7 @@ def save_to_file(file_path: str, script: str) -> None:
 def load_from_file(file_path: str) -> list[str]:
 	pass # TODO: Implement
 
-class NodeWrapper():
+class NodeWrapper:
 	def __init__(self, html_node: HTMLNode, branch: TreeNode):
 		self.id = html_node.id
 		self.tag_type = html_node.tag_type
@@ -50,6 +50,7 @@ class NodeWrapper():
 		self.added_to_query = False
 		self.extract_attributes = []
 		self.flags = []
+		self.query_item = None
 
 	def _update_branch_label(self, new_label: str):
 		self.branch.label = new_label
@@ -261,6 +262,8 @@ class ControlPanel(VerticalGroup):
 			self.contextual_button.variant = "error"
 
 	def append_attribute(self, attribute):
+		if self.current_node.query_item == None:
+			self.add_node()
 		self.loom.changes_saved = False
 		self.current_node.append_attribute(attribute)
 		new_instr = self.current_node.get_retrieval_instructions()
@@ -270,6 +273,8 @@ class ControlPanel(VerticalGroup):
 		list_item.mount(Static(new_instr))
 
 	def append_flag(self, flag):
+		if self.current_node.query_item == None:
+			self.add_node()
 		self.loom.changes_saved = False
 		self.current_node.append_flag(flag)
 		new_instr = self.current_node.get_retrieval_instructions()
@@ -521,7 +526,7 @@ class SaveAsModal(ModalScreen):
 		super().__init__(**kwargs)
 
 	def compose(self):
-		yield Input(f"{str(Path.home())}{os.sep}script.goat", placeholder="file path", id="save-as-input")
+		yield Input(f"{os.getcwd()}{os.sep}script.goat", placeholder="file path", id="save-as-input")
 		yield Button("Save", id="save-as-confirm", variant="primary")
 
 	def on_button_pressed(self, _: Button.Pressed):
