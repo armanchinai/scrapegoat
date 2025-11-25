@@ -4,7 +4,7 @@ from textual.screen import ModalScreen
 from textual.binding import Binding
 from textual.widgets import Header, Footer, Tree, Button, Static, Select, Collapsible, Checkbox, Input, ListView, ListItem, RadioSet, ContentSwitcher, Label
 from textual.widgets.tree import TreeNode
-from textual.containers import HorizontalGroup, VerticalGroup, HorizontalScroll
+from textual.containers import HorizontalGroup, VerticalGroup, HorizontalScroll, Grid
 from importlib.resources import files
 from platform import system
 from subprocess import Popen, PIPE
@@ -269,6 +269,8 @@ class ControlPanel(VerticalGroup):
 			if item.get_retrieval_instructions() == query:
 				self.query_nodes.remove(item)
 				item.query_item.remove()
+				if type(item) == NodeWrapper:
+					item.set_querying(False)
 				return
 	
 	def remove_node(self):
@@ -479,9 +481,12 @@ class RemoveQueryModal(ModalScreen):
 		super().__init__(*kwargs)
 
 	def compose(self):
-		with HorizontalGroup():
-			yield Button("Remove Query", variant="error", id="remove-query-yes")
-			yield Button("Cancel", variant="default", id="remove-query-no")
+		yield Grid(
+            Label("Are you sure you want remove the selected query?", id="question"),
+            Button("Yes", variant="error", id="remove-query-yes"),
+            Button("No", variant="primary", id="remove-query-no"),
+            id="dialog",
+        )
 		
 	def on_button_pressed(self, event: Button.Pressed):
 		if event.button.id == "remove-query-yes":
@@ -493,7 +498,6 @@ class Loom(App):
 	CSS_PATH = str(files("scrapegoat_loom").joinpath("gui-styles/tapestry.tcss"))
 	SCREENS = {"find": FindModal, "set-url": SetURLModal, "add-query": AppendQueryModal, "remove-query": RemoveQueryModal}
 	BINDINGS = [
-		Binding("ctrl+n", "add_remove_node", "Add/Remove Node", priority=True, tooltip="Adds or removes the selected node."),
 		Binding("ctrl+f", "push_screen('find')", "Search Tree", tooltip="Shows the node search widget."),
 		Binding("ctrl+u", "toggle_set_url", "Set URL", tooltip="Shows the URL input widget."),
 		Binding("ctrl+a", "toggle_insert_query", "Append Query", tooltip="Appends a new scrape query."),
@@ -515,6 +519,7 @@ class Loom(App):
 		yield from super().get_system_commands(screen)
 		yield SystemCommand("Find", "Shows/Hides the node search widget.", self.toggle_search)
 		yield SystemCommand("Set URL", "Sets the URL for the Tree Visualizer to pull from.", self.action_toggle_set_url)
+		yield SystemCommand("Append Query", "Appends a new scrape query.", self.action_toggle_insert_query)
 
 	def _create_tree_from_root_node(self, node) -> Tree:
 		self.nodes = {}
@@ -573,10 +578,11 @@ class Loom(App):
 		self.push_screen("set-url")
 
 	def action_toggle_insert_query(self) -> None:
-		self.push_screen("add-query", lambda x: self.control_panel.append_query(x))
+		if self.has_tree:
+			self.push_screen("add-query", lambda x: self.control_panel.append_query(x))
 
 	def action_toggle_remove_query(self) -> None:
-		if self.selected_query != None and self.selected_query[:5] != "VISIT":
+		if self.selected_query != None and self.selected_query[:5] != "VISIT" and self.has_tree:
 			self.push_screen("remove-query", lambda x: self.remove_query(x))
 
 	def remove_query(self, confirm) -> None:
@@ -659,7 +665,10 @@ class Loom(App):
 					self.query_one(Tree).move_cursor(self.current_search_nodes[self.search_node_index].branch, True)
 
 	def on_list_view_selected(self, event: ListView.Selected):
-		self.selected_query = event.item.query_one(Static).render()
+		if event.list_view.id == "query-view":
+			self.selected_query = event.item.query_one(Static).render()
+		else:
+			self.selected_query = None
 
 	def compose(self):
 		yield Header(name="ScrapeGoat", icon="🐐")
