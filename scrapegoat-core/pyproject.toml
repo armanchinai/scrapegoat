@@ -9,7 +9,8 @@ description = "A toolkit of functions, classes, and utilities for creating web s
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { text = "MIT" }
 authors = [
-  { name = "Arman Chinai", email = "chinaiarman@gmail.com" }
+  { name = "Arman Chinai", email = "chinaiarman@gmail.com" },
+  { name = "Lucas Angelozzi", email = "lucasangelozzi32@gmail.com"}
 ]
 requires-python = ">=3.12"
 
@@ -36,3 +37,6 @@ loom = ["scrapegoat-loom>=1.2.0"]
 js = [
   "playwright>=1.56.0",
 ]
+
+[project.scripts]
+scrapegoat = "scrapegoat_core.cli:main"
