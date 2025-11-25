@@ -321,10 +321,5 @@ documents.onDidChangeContent(change => {
     connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 })
 
-
-
-
-
-
 documents.listen(connection)
 connection.listen()
