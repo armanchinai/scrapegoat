@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 import os
 
-from scrapegoat import Gardener, Sheepdog, HTMLNode
+from scrapegoat_core import Gardener, Sheepdog, HTMLNode
 
 NodeAttributes = (
 	"tag_type", "id", "has_data", "body", "parent", "children"
@@ -535,7 +535,8 @@ class Loom(App):
 		Binding("ctrl+u", "toggle_set_url", "Set URL", tooltip="Shows the URL input widget."),
 		Binding("ctrl+a", "toggle_insert_query", "Append Query", tooltip="Appends a new scrape query."),
 		Binding("ctrl+r", "toggle_remove_query", "Remove Query", tooltip="Removes a query."),
-		Binding("ctrl+s", "save", "Save", tooltip="Save the query.")
+		Binding("ctrl+S", "toggle_save_as", "Save As", tooltip="Save the query to a new file."),
+		Binding("ctrl+s", "save", "Save", tooltip="Save the query."),
 	]
 
 	def __init__(self, **kwargs):
