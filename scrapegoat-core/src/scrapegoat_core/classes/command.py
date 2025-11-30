@@ -120,6 +120,10 @@ class DeliverCommand(Command):
     def _collect_nodes(self, node_dict: dict, all_nodes: list) -> dict:
         """
         """
+        if type(node_dict) is not dict:
+            for item in node_dict:
+                self._collect_nodes(item, all_nodes)
+            return
         node_copy = node_dict.copy()
 
         had_children = "children" in node_copy
@@ -145,6 +149,7 @@ class DeliverCommand(Command):
         """
         all_nodes = []
         for node in nodes:
+            # check if node is a list:
             node_dict = node.to_dict()
             self._collect_nodes(node_dict, all_nodes)
 
