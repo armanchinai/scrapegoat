@@ -22,7 +22,7 @@ class HTMLNode:
         self.retrieval_instructions = ""
         self.parent = parent
         self.extract_fields = None
-        self.extract_flags = {"ignore_children": False, "ignore_grandchildren": False}
+        self.extract_flags = {"ignore_children": False, "ignore_grandchildren": False, "table": False}
     
     def to_dict(self, ignore_children=False) -> str:
         """
@@ -224,17 +224,18 @@ class HTMLNode:
         """
         self.retrieval_instructions = instruction
 
-    def set_extract_instructions(self, fields: list=None, ignore_children=False, ignore_grandchildren=False):
+    def set_extract_instructions(self, fields: list=None, ignore_children=False, ignore_grandchildren=False, table=False):
         """
         """
         self.extract_fields = fields or None
-        self.extract_flags = {"ignore_children": ignore_children, "ignore_grandchildren": ignore_grandchildren}
+        self.extract_flags = {"ignore_children": ignore_children, "ignore_grandchildren": ignore_grandchildren, "table": table}
 
     def clear_extract_instructions(self):
         """
         """
         self.extract_fields = None
         self.extract_flags = None
+        self.table = False
 
 
 def main():

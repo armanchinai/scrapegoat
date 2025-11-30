@@ -64,18 +64,19 @@ class GrazeCommand(Command):
 class ChurnCommand(Command):
     """
     """
-    def __init__(self, fields: list = None, ignore_children: bool = False, ignore_grandchildren: bool = False):
+    def __init__(self, fields: list = None, ignore_children: bool = False, ignore_grandchildren: bool = False, table: bool = False):
         """
         """
         super().__init__(action="extract")
         self.fields = fields
         self.ignore_children = ignore_children
         self.ignore_grandchildren = ignore_grandchildren
+        self.table = table
     
     def execute(self, node) -> None:
         """
         """
-        node.set_extract_instructions(self.fields, self.ignore_children, self.ignore_grandchildren)
+        node.set_extract_instructions(self.fields, self.ignore_children, self.ignore_grandchildren, self.table)
         
 
 class DeliverCommand(Command):
