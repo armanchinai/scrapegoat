@@ -160,6 +160,16 @@ class HTMLNode:
         for child in self.children:
             yield from child.preorder_traversal()
 
+    def like_html_attribute(self, key, value=None) -> bool:
+        """
+        """
+        value = value.lower() if value is not None else value
+        if value is None:
+            return key in self.html_attributes
+        if self.html_attributes.get(key) is None:
+            return False
+        return value in str(self.html_attributes.get(key)).lower()
+
     def has_html_attribute(self, key, value=None) -> bool:
         """
         """
@@ -167,7 +177,53 @@ class HTMLNode:
             return key in self.html_attributes
         if self.html_attributes.get(key) is None:
             return False
-        return value in self.html_attributes.get(key)
+        return value == self.html_attributes.get(key)
+    
+    def like_attribute(self, key, value=None) -> bool:
+        """
+        """
+        value = value.lower() if value is not None else value
+        if key == "tag_type":
+            if value is None:
+                return self.tag_type is not None
+            return value in self.tag_type.lower()
+        if key == "id":
+            if value is None:
+                return self.id is not None
+            return value in str(self.id).lower()
+        if key == "has_data":
+            if value is None:
+                return self.has_data
+            return str(value) == str(self.has_data).lower()
+        if key == "body":
+            if value is None:
+                return self.body is not None
+            return value in self.body.lower()
+        if key == "retrieval_instructions":
+            if value is None:
+                return self.retrieval_instructions is not None
+            return value in self.retrieval_instructions.lower()
+        if key == "extract_fields":
+            if value is None:
+                return self.extract_fields is not None
+            return self.extract_flags == value
+        if key == "extract_flags":
+            if value is None:
+                return self.extract_flags is not None
+            return self.extract_flags == value
+        if key == "parent":
+            if value is None:
+                return self.parent is not None
+            return self.parent and value in str(self.parent.id).lower()
+        if key == "children":
+            if value is None:
+                return len(self.children) > 0
+            return any(value in str(child.id).lower() for child in self.children)
+        if key == "raw":
+            if value is None:
+                return self.raw is not None
+            return value in self.raw.lower()
+        return False
     
     def has_attribute(self, key, value=None) -> bool:
         """

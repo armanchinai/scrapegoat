@@ -47,7 +47,7 @@ class Tokenizer:
         self.ACTIONS = {"select", "scrape", "extract", "output", "visit"}
         self.CONDITIONALS = {"if", "in"}
         self.KEYWORDS = {"position"}
-        self.OPERATORS = {"=", "!="}
+        self.OPERATORS = {"=", "!=", "like"}
         self.NEGATIONS = {"not"}
         self.FILE_TYPES = {"json", "csv"}
         self.FLAGS = {}
@@ -79,7 +79,7 @@ class Tokenizer:
         tokens = []
         pattern = (
             r'(--[A-Za-z0-9_-]+|'
-            r'\bSELECT\b|\bSCRAPE\b|\bEXTRACT\b|\bOUTPUT\b|\bVISIT\b|\bIN\b|\bIF\b|'
+            r'\bSELECT\b|\bSCRAPE\b|\bEXTRACT\b|\bOUTPUT\b|\bVISIT\b|\bIN\b|\bIF\b|\bPOSITION\b|\bNOT\b|\bLIKE\b|\bJSON\b|\bCSV\b|'
             r'!=|==|=|;|\n|'
             r'"(?:[^"]*)"|\'(?:[^\']*)\'|'
             r'@?[A-Za-z_][A-Za-z0-9_-]*|'
@@ -194,12 +194,13 @@ class ConditionParser(Parser):
             return condition, index
         if token.value == "!=":
             negated = True
+        like = token.value == "like"
         index += 1
         token = tokens[index]
         if token.type not in {TokenType.IDENTIFIER, TokenType.NUMBER}:
             raise SyntaxError(f"Expected value after IF {key} = at {token}")
         value = token.value
-        condition = IfCondition(key=key, value=value, negated=negated, query_tag=element)
+        condition = IfCondition(key=key, value=value, negated=negated, query_tag=element, like=like)
         index += 1
         return condition, index
     

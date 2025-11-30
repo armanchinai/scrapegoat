@@ -28,19 +28,36 @@ class Condition(ABC):
 class IfCondition(Condition):
     """
     """
-    def __init__(self, key: str, value: str, negated: bool = False, query_tag: str = None):
+    def __init__(self, key: str, value: str, negated: bool = False, query_tag: str = None, like: bool = False):
         """
         """
         super().__init__(negated)
         self.key = key
         self.value = value
         self.query_tag = query_tag
+        self.like = like
 
     def matches(self, node, _) -> bool:
         """
         """
         if self.query_tag is None:
             raise ValueError("query_tag is required for IF condition")
+        if self.like:
+            return self._like_match(node)
+        else:
+            return self._exact_match(node)
+    
+    def _like_match(self, node) -> bool:
+        """
+        """
+        if self.key[0] == "@":
+            return node.like_html_attribute(self.key, self.value) and node.tag_type == self.query_tag
+        else:
+            return node.like_attribute(self.key, self.value) and node.tag_type == self.query_tag
+        
+    def _exact_match(self, node) -> bool:
+        """
+        """
         if self.key[0] == "@":
             return node.has_html_attribute(self.key, self.value) and node.tag_type == self.query_tag
         else:
