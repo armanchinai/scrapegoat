@@ -9,6 +9,10 @@ from scrapegoat_core.exceptions import ScrapegoatMissingFieldException
 class Condition(ABC):
     """
     The base Condition class for defining conditions used in scrape and select commands.
+
+    Important:
+        This is an abstract base class and cannot be instantiated directly.
+        Subclasses must implement the `matches` method to define specific condition logic.
     """
     def __init__(self, negated: bool = False):
         """
@@ -22,7 +26,8 @@ class Condition(ABC):
     @abstractmethod
     def matches(self, node: "HTMLNode", root: "HTMLNode") -> bool: # type: ignore
         """
-        Determines if the condition matches the given node. Must be implemented by subclasses.
+        Determines if the condition matches the given node.
+        Must be implemented by subclasses.
 
         Args:
             node (HTMLNode): The HTMLNode to evaluate the condition against.
@@ -50,7 +55,11 @@ class Condition(ABC):
 
 class IfCondition(Condition):
     """
-    The IfCondition class for defining attribute-based conditions used in scrape and select commands. Supports both exact and like matching. Returns true if the specified attribute matches the given value or if the specified attribute is present when no value is provided.
+    The IfCondition class for defining attribute-based conditions used in scrape and select commands.
+
+    Info:
+        Supports both exact and like matching.
+        Returns true if the specified attribute matches the given value or if the specified attribute is present when no value is provided.
     """
     def __init__(self, key: str, value: str, negated: bool = False, query_tag: str = None, like: bool = False):
         """
@@ -111,7 +120,10 @@ class IfCondition(Condition):
 
 class InCondition(Condition):
     """
-    The InCondition class for defining hierarchical conditions used in scrape and select commands. Supports checking if a node is a descendant of a target tag or if it is at a specific position relative to the entire tree with respect to elements of the same tag.
+    The InCondition class for defining hierarchical conditions used in scrape and select commands.
+    
+    Info:
+        Supports checking if a node is a descendant of a target tag or if it is at a specific position relative to the entire tree with respect to elements of the same tag.
     """
     def __init__(self, target: str, value=None, negated: bool = False, query_tag: str = None):
         """

@@ -12,7 +12,11 @@ from .conditions import InCondition
 
 class Command(ABC):
     """
-    The base Command class for defining various commands used in goatspeak. Each command must implement the execute method.
+    The base Command class for defining various commands used in goatspeak.
+
+    Important:
+        This is an abstract base class and should not be instantiated directly.
+        Subclasses must implement the execute method to define specific command behaviors.
     """
     @abstractmethod
     def __init__(self, action: str):
@@ -37,7 +41,12 @@ class Command(ABC):
 
 class GrazeCommand(Command):
     """
-    The GrazeCommand class for defining commands to parse HTMLNodes from tree structures. A GrazeCommand can either be a select, which rebases the root node for subsequent commands, or a scrape, which extracts the entire set of matching nodes. GrazeCommands can also include conditions to filter the nodes they operate on.
+    The GrazeCommand class for defining commands to parse HTMLNodes from tree structures.
+    
+    Info:
+        A GrazeCommand can either be a select, which rebases the root node for subsequent commands, or a scrape, which extracts the entire set of matching nodes.
+        GrazeCommands can also include conditions to filter the nodes they operate on.
+        All conditions must be met for a node to be selected by a GrazeCommand.
     """
     def __init__(self, action: str, count: int, element: str, conditions: list["Condition"]=None, flags: list=None): # type: ignore
         """
@@ -88,7 +97,12 @@ class GrazeCommand(Command):
 
 class ChurnCommand(Command):
     """
-    The ChurnCommand class for defining how an HTMLNode is to be represented after being scraped. This command is used to extract specific data from the scraped nodes. Special flags also exist to direct whether a node should hold onto its children through representation, or if it should be represented as a table.
+    The ChurnCommand class for defining how an HTMLNode is to be represented after being scraped.
+    
+    Info:
+        This command is used to extract specific data from the scraped nodes.
+        To do this, the ChurnCommand takes in a list of fields to extract, as well as flags to ignore children or grandchildren nodes during extraction.
+        If scraping a table, the table flag can be set to True to represent the table as it would appear on a webpage.
     """
     def __init__(self, fields: list[str] = None, ignore_children: bool = False, ignore_grandchildren: bool = False, table: bool = False):
         """
@@ -118,7 +132,12 @@ class ChurnCommand(Command):
 
 class DeliverCommand(Command):
     """
-    The DeliverCommand class for defining how scraped HTMLNode results are to be delivered to a file. Supports CSV and JSON formats.
+    The DeliverCommand class for defining how scraped HTMLNode results are to be exported to a file.
+    
+    Info:
+        The DeliverCommand currently only supports exports to CSV and JSON file formats.
+        By default, if no filepath is provided, the file will be saved in the current working directory.
+        If no filename is provided, a default name of "output" with the appropriate file extension will be used.
 
     Attributes:
         VALID_TYPES (set): A set of valid file types for delivery ("csv", "json").
@@ -229,7 +248,11 @@ class DeliverCommand(Command):
 
 class FetchCommand(Command):
     """
-    The FetchCommand class executes the getter function from its attributes to retrieve HTML content from a specified URL. By default, it uses the requests.get method, but this can be overridden by providing a custom getter function. The Sheepdog class is the primary way of overriding the default getter.
+    The FetchCommand class executes the getter function from its attributes to retrieve HTML content from a specified URL.
+    
+    Info:
+        By default, the FetchCommand uses the requests.get method, but this can be overridden by providing a custom getter function.
+        Through the Sheepdog class, the getter can be easily overwritten, either by passing in a custom function or by extending the Sheepdog class itself, with a new implementation of the getter method.
     """
     def __init__(self, url: str, **kwargs):
         """

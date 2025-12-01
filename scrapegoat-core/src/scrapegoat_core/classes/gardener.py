@@ -9,7 +9,11 @@ from scrapegoat_core.exceptions import ScrapegoatParseException
 
 class Gardener(HTMLParser):
     """
-    The Gardener class is responsible for parsing raw HTML into a tree structure composed of HTMLNodes. It extends Python's built-in HTMLParser to handle HTML tags, attributes, and text content.
+    The Gardener class is responsible for parsing raw HTML into a tree structure composed of HTMLNodes.
+    
+    Info:
+        Under the hood, the Gardener class extends Python's built-in HTMLParser to handle HTML tags, attributes, and text content.
+        When an inline tag is encountered, its text content is bubbled up to its parent node to ensure proper representation of text as it would appear on the DOM.
 
     Attributes:
         VOID_TAGS (set): A set of HTML tags that do not require closing tags.

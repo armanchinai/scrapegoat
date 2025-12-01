@@ -96,12 +96,6 @@ class Tokenizer:
 
         Returns:
             list[Token]: A list of Token objects representing the tokenized query.
-
-        Usage:
-            ```python
-            tokens = Tokenizer().tokenize('SELECT 5 div IF @class = "item";')
-            print(len(tokens))  # 8
-            ```
         """
         query = self._preprocess_query(query)
         
@@ -150,7 +144,11 @@ class Tokenizer:
 
 class Parser(ABC):
     """
-    Abstract base class for all parsers to inherit from. Defines the parse method that must be implemented by subclasses.
+    Abstract base class for all parsers to inherit from.
+
+    Important:
+        This is an abstract base class and cannot be instantiated directly.
+        Subclasses must implement the `parse` method to define specific parsing logic.
     """
     @abstractmethod
     def parse(self, tokens: list[Token], index) -> tuple[object, int]:

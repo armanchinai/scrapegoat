@@ -3,10 +3,17 @@
 
 import uuid
 
+from scrapegoat_core.exceptions import GoatspeakInterpreterException
+
 
 class HTMLNode:
     """
     The HTMLNode is a data class used to represent an HTML element within the HTMLNode tree structure.
+
+    Info:
+        Each HTMLNode instance corresponds to a single HTML element, encapsulating its tag type, attributes, text content, and relationships to other nodes in the tree (parent and children).
+        The class provides methods for converting the node and its subtree into dictionary and HTML string representations, as well as methods for traversing and querying the tree structure.
+        The HTMLNode is able to handle special extract instructions by modifying its representation through the to_dict() method.
 
     Attributes:
         VOID_TAGS (set): A set of HTML tag types that are considered void elements (self-closing tags).
@@ -46,10 +53,13 @@ class HTMLNode:
 
         Returns:
             dict: A dictionary representation of the HTMLNode.
+
+        Warning:
+            If the `table` extract flag is set to True while processing a non-table node, a GoatspeakInterpreterException will be raised.
         """
         if self.extract_flags["table"]:
             if self.tag_type != "table":
-                raise ValueError("Table extraction requested on a non-table node")
+                raise GoatspeakInterpreterException("Table extraction requested on a non-table node")
             return self._handle_table_extract()
         ignore_children = self.extract_flags["ignore_children"] or ignore_children
         for child in self.children:
