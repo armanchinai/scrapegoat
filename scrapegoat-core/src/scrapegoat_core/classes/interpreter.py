@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from .command import GrazeCommand, ChurnCommand, DeliverCommand, FetchCommand
 from .conditions import InCondition, IfCondition
 from .block import GoatspeakBlock, Query
+from scrapegoat_core.exceptions import GoatspeakInterpreterException
 
 
 class TokenType(Enum):
@@ -182,13 +183,16 @@ class FlagParser(Parser):
 
         Returns:
             tuple: A tuple containing a dictionary of flags and the updated index.
+
+        Warning:
+            Raises GoatspeakInterpreterException if the flag syntax is invalid.
         """
         flags = {}
         
         while tokens[index].type != TokenType.SEMICOLON:
             token = tokens[index]
             if token.type != TokenType.FLAG:
-                raise SyntaxError(f"Expected flag at token {token}")
+                raise GoatspeakInterpreterException(f"Expected flag at token {token}")
             flag_name = token.value
             index += 1
             token = tokens[index]
@@ -216,6 +220,9 @@ class ConditionParser(Parser):
 
         Returns:
             tuple: A tuple containing the parsed condition object and the updated index.
+
+        Warning:
+            Raises GoatspeakInterpreterException if the condition syntax is invalid.
         """
         negated = False
         if tokens[index].type == TokenType.NEGATION:
@@ -223,7 +230,7 @@ class ConditionParser(Parser):
             index += 1
         token = tokens[index]
         if token.type != TokenType.CONDITIONAL:
-            raise SyntaxError(f"Expected conditional at {token}")
+            raise GoatspeakInterpreterException(f"Expected conditional at {token}")
         if token.value == "if":
             return self._parse_if(tokens, index, element, negated)
         elif token.value == "in":
@@ -235,7 +242,7 @@ class ConditionParser(Parser):
         index += 1
         token = tokens[index]
         if token.type != TokenType.IDENTIFIER:
-            raise SyntaxError(f"Expected key after IF at {token}")
+            raise GoatspeakInterpreterException(f"Expected key after IF at {token}")
         key = token.value
         index += 1
         token = tokens[index]
@@ -248,7 +255,7 @@ class ConditionParser(Parser):
         index += 1
         token = tokens[index]
         if token.type not in {TokenType.IDENTIFIER, TokenType.NUMBER}:
-            raise SyntaxError(f"Expected value after IF {key} = at {token}")
+            raise GoatspeakInterpreterException(f"Expected value after IF {key} = at {token}")
         value = token.value
         condition = IfCondition(key=key, value=value, negated=negated, query_tag=element, like=like)
         index += 1
@@ -263,18 +270,18 @@ class ConditionParser(Parser):
             index += 1
             token = tokens[index]
             if token.type != TokenType.OPERATOR:
-                raise SyntaxError(f"Expected '=' after IN POSITION at {token}")
+                raise GoatspeakInterpreterException(f"Expected '=' after IN POSITION at {token}")
             if token.value == "!=":
                 negated = True
             index += 1
             token = tokens[index]
             if token.type != TokenType.NUMBER:
-                raise SyntaxError(f"Expected number after IN POSITION = at {token}")
+                raise GoatspeakInterpreterException(f"Expected number after IN POSITION = at {token}")
             position = int(token.value)
             condition = InCondition(target="POSITION", value=position, negated=negated, query_tag=element)
         else:
             if token.type != TokenType.IDENTIFIER:
-                raise SyntaxError(f"Expected element after IN at {token}")
+                raise GoatspeakInterpreterException(f"Expected element after IN at {token}")
             target = token.value
             condition = InCondition(target=target, negated=negated, query_tag=element)
         index += 1
@@ -306,6 +313,9 @@ class ScrapeSelectParser(Parser):
 
         Returns:
             tuple: A tuple containing the parsed GrazeCommand object and the updated index.
+
+        Warning:
+            Raises GoatspeakInterpreterException if the command syntax is invalid.
         """
         action = tokens[index].value
         index += 1
@@ -318,7 +328,7 @@ class ScrapeSelectParser(Parser):
 
         # element
         if tokens[index].type != TokenType.IDENTIFIER:
-            raise SyntaxError(f"Expected element at token {tokens[index]}")
+            raise GoatspeakInterpreterException(f"Expected element at token {tokens[index]}")
         element = tokens[index].value
         index += 1
 
@@ -403,12 +413,15 @@ class OutputParser(Parser):
 
         Returns:
             tuple: A tuple containing the parsed DeliverCommand object and the updated index.
+
+        Warning:
+            Raises GoatspeakInterpreterException if the command syntax is invalid.
         """
         index += 1
 
         # file type
         if tokens[index].type != TokenType.FILE_TYPE:
-            raise SyntaxError(f"Expected file type at token {tokens[index]}")
+            raise GoatspeakInterpreterException(f"Expected file type at token {tokens[index]}")
         file_type = tokens[index].value
         index += 1
 
@@ -444,12 +457,15 @@ class VisitParser(Parser):
 
         Returns:
             tuple: A tuple containing the parsed FetchCommand object and the updated index.
+
+        Warning:
+            Raises GoatspeakInterpreterException if the command syntax is invalid.
         """
         index += 1
 
         # url
         if tokens[index].type != TokenType.IDENTIFIER:
-            raise SyntaxError(f"Expected URL at token {tokens[index]}")
+            raise GoatspeakInterpreterException(f"Expected URL at token {tokens[index]}")
         url = tokens[index].value
         index += 1
 
@@ -527,6 +543,9 @@ class Interpreter:
 
         Returns:
             list[GoatspeakBlock]: A list of GoatspeakBlock objects representing the interpreted
+
+        Warning:
+            Raises GoatspeakInterpreterException if the command syntax is invalid.
         """
         tokens = self.tokenizer.tokenize(query)
         instructions = []
@@ -536,12 +555,12 @@ class Interpreter:
         while index < len(tokens):
             token = tokens[index]
             if token.type != TokenType.ACTION:
-                raise SyntaxError(f"Expected action at token {token}")
+                raise GoatspeakInterpreterException(f"Expected action at token {token}")
             
             parser = self.action_parsers.get(token.value)
             
             if parser is None:
-                raise SyntaxError(f"Unknown action '{token.value}' at token {token}")
+                raise GoatspeakInterpreterException(f"Unknown action '{token.value}' at token {token}")
             
             instruction, index = parser.parse(tokens, index)
             instructions.append(instruction)

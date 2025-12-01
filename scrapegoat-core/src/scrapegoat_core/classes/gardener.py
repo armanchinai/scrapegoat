@@ -4,6 +4,7 @@
 # IMPORTS
 from html.parser import HTMLParser
 from .node import HTMLNode
+from scrapegoat_core.exceptions import ScrapegoatParseException
 
 
 class Gardener(HTMLParser):
@@ -138,6 +139,9 @@ class Gardener(HTMLParser):
             ```python
             root_node = Gardener().grow_tree("<html><body><p>Hello, World!</p></body></html>")
             ```
+
+        Warning:
+            Raises ScrapegoatParseException if the HTML cannot be parsed.
         """
         self.root = None
         self.stack = []
@@ -145,7 +149,10 @@ class Gardener(HTMLParser):
         self.reset()
 
         wrapped_html = self._append_root_tag(raw_html)
-        self.feed(wrapped_html)
+        try:
+            self.feed(wrapped_html)
+        except Exception as e:
+            raise ScrapegoatParseException(f"Failed to parse HTML: {str(e)}")
         return self.root
 
     def get_root(self) -> HTMLNode:

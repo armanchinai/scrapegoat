@@ -5,6 +5,7 @@ from typing import Union
 import requests
 
 from .command import FetchCommand
+from scrapegoat_core.exceptions import ScrapegoatPlaywrightException, ScrapegoatFetchException
 
 
 class Sheepdog:
@@ -68,22 +69,22 @@ class Sheepdog:
 
         Returns:
             str: The fetched HTML content.
+
+        Warning:
+            Raises ScrapegoatFetchException if the fetch operation fails.
         """
-        headers = kwargs.pop('headers', self.DEFAULT_HEADERS)
-        response = requests.get(url, headers=headers, **kwargs)
-        response.raise_for_status()
-        return response.text
+        try:
+            headers = kwargs.pop('headers', self.DEFAULT_HEADERS)
+            response = requests.get(url, headers=headers, **kwargs)
+            response.raise_for_status()
+            return response.text
+        except Exception as e:
+            raise ScrapegoatFetchException(f"Failed to fetch URL {url}: {str(e)}")
 
 
 class HeadlessSheepdog(Sheepdog):
     """
     The HeadlessSheepdog class extends the Sheepdog class to fetch HTML content using a headless browser via the Playwright library. This class uses a very simple implementation that will wait for the DOM content to load before returning the HTML.
-
-    Warning:
-        The Playwright library must be installed separately. If it is not installed, a RuntimeError will be raised when attempting to fetch content. To install Playwright, run 'pip install playwright' in your terminal.
-
-    Warning:
-        A headless browser must be installed on the local device. If one is not installed, a RuntimeError will be raised when attempting to fetch content. To install the executables, run 'playwright install' in your terminal.
     """
     def __init__(self, getter=None):
         """
@@ -109,11 +110,20 @@ class HeadlessSheepdog(Sheepdog):
             ```python
             html_content = HeadlessSheepdog().fetch("http://example.com")
             ```
+
+        Warning:
+            The Playwright library must be installed separately. If it is not installed, a ScrapegoatPlaywrightException will be raised when attempting to fetch content. To install Playwright, run 'pip install playwright' in your terminal.
+
+        Warning:
+            A headless browser must be installed on the local device. If one is not installed, a ScrapegoatPlaywrightException will be raised when attempting to fetch content. To install the executables, run 'playwright install' in your terminal.
+        
+        Warning:
+            Raises ScrapegoatFetchException if the fetch operation fails.
         """
         try:
             from playwright.sync_api import sync_playwright
         except ImportError:
-            raise RuntimeError("Playwright is not installed. Please install it with 'pip install playwright'")
+            raise ScrapegoatPlaywrightException("Playwright is not installed. Please install it with 'pip install playwright'")
 
         try:
             with sync_playwright() as p:
@@ -123,7 +133,9 @@ class HeadlessSheepdog(Sheepdog):
                 return page.content()
         except Exception as e:
             if "Executable doesn't exist" in str(e):
-                raise RuntimeError("Playwright browser executables are not installed. Please run 'playwright install' to install them.")
+                raise ScrapegoatPlaywrightException("Playwright browser executables are not installed. Please run 'playwright install' to install them.")
+            else:
+                raise ScrapegoatFetchException(f"Failed to fetch URL {url} using Playwright: {str(e)}")
 
 
 def main():

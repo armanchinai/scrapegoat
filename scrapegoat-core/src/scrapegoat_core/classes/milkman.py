@@ -1,6 +1,9 @@
 """
 """
 
+from scrapegoat_core.exceptions import ScrapegoatIOException
+
+
 class Milkman:
     """
     The Milkman class is responsible for handling the file operations related to goatspeak scripts. It provides methods to read goatspeak scripts from files and deliver scraped results to specified destinations.
@@ -20,8 +23,14 @@ class Milkman:
             ```python
             Milkman().deliver(results, deliver_command)
             ```
+
+        Warning:
+            Raises ScrapegoatIOException if the delivery to the specified destination fails.
         """
-        deliver_command.execute(results)
+        try:
+            deliver_command.execute(results)
+        except Exception as e:
+            raise ScrapegoatIOException(f"Failed to save to file: {str(e)}")
         return
     
     def receive(self, filepath: str) -> str:
@@ -38,9 +47,15 @@ class Milkman:
             ```python
             goatspeak = Milkman().receive("path/to/script.goat")
             ```
+
+        Warning:
+            Raises ScrapegoatReadFileException if the file cannot be read.
         """
-        with open(filepath, "r", encoding="utf-8") as f:
-            return f.read()
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            raise ScrapegoatIOException(f"Failed to read goatspeak file at {filepath}: {str(e)}")
 
 
 def main():

@@ -3,6 +3,8 @@
 
 from abc import ABC, abstractmethod
 
+from scrapegoat_core.exceptions import ScrapegoatMissingFieldException
+
 
 class Condition(ABC):
     """
@@ -41,7 +43,7 @@ class IfCondition(Condition):
         """
         """
         if self.query_tag is None:
-            raise ValueError("query_tag is required for IF condition")
+            raise ScrapegoatMissingFieldException("query_tag must be specified for IfCondition")
         if self.like:
             return self._like_match(node)
         else:
@@ -85,9 +87,9 @@ class InCondition(Condition):
         """
         if self.target == "POSITION":
             if not root:
-                raise ValueError("Root node is required for POSITION condition")
+                raise ScrapegoatMissingFieldException("root is required for POSITION condition")
             if not self.query_tag:
-                raise ValueError("query_tag is required for POSITION condition")
+                raise ScrapegoatMissingFieldException("query_tag is required for POSITION condition")
             position = 1
             for n in root.preorder_traversal():
                 if n.tag_type == self.query_tag:
