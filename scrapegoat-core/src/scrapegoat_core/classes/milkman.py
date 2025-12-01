@@ -33,6 +33,11 @@ class Milkman:
 
         Returns:
             str: The content of the goatspeak script file.
+
+        Usage:
+            ```python
+            goatspeak = Milkman().receive("path/to/script.goat")
+            ```
         """
         with open(filepath, "r", encoding="utf-8") as f:
             return f.read()

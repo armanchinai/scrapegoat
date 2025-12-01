@@ -13,6 +13,7 @@ from .block import GoatspeakBlock, Query
 
 class TokenType(Enum):
     """
+    An Enum representing different types of tokens in the goatspeak language.
     """
     ACTION = auto()
     CONDITIONAL = auto()
@@ -29,9 +30,15 @@ class TokenType(Enum):
 
 class Token:
     """
+    A data class representing a token in the goatspeak language.
     """
     def __init__(self, type: str, value: str):
         """
+        Initializes a Token instance.
+
+        Args:
+            type (str): The type of the token.
+            value (str): The value of the token.
         """
         self.type = type
         self.value = value
@@ -43,14 +50,25 @@ class Token:
     
 
 class Tokenizer:
-    def __init__(self):
-        self.ACTIONS = {"select", "scrape", "extract", "output", "visit"}
-        self.CONDITIONALS = {"if", "in"}
-        self.KEYWORDS = {"position"}
-        self.OPERATORS = {"=", "!=", "like"}
-        self.NEGATIONS = {"not"}
-        self.FILE_TYPES = {"json", "csv"}
-        self.FLAGS = {}
+    """
+    A class responsible for tokenizing goatspeak queries.
+
+    Attributes:
+        ACTIONS (set): A set of valid action keywords.
+        CONDITIONALS (set): A set of valid conditional keywords.
+        KEYWORDS (set): A set of valid keywords.
+        OPERATORS (set): A set of valid operators.
+        NEGATIONS (set): A set of valid negation keywords.
+        FILE_TYPES (set): A set of valid file type keywords.
+        FLAGS (set): A set of valid flag keywords.
+    """
+    ACTIONS = {"select", "scrape", "extract", "output", "visit"}
+    CONDITIONALS = {"if", "in"}
+    KEYWORDS = {"position"}
+    OPERATORS = {"=", "!=", "like"}
+    NEGATIONS = {"not"}
+    FILE_TYPES = {"json", "csv"}
+    FLAGS = {}
 
     def _preprocess_query(self, query: str) -> str:
         """
@@ -65,7 +83,6 @@ class Tokenizer:
         """
         def replacer(m):
             s = m.group(0)
-            # Only remove if it’s a comment, not quoted text
             return '' if s.strip().startswith('//') else s
 
         query = re.sub(pattern, replacer, query, flags=re.MULTILINE | re.VERBOSE)
@@ -73,6 +90,19 @@ class Tokenizer:
 
     def tokenize(self, query: str) -> list[Token]:
         """
+        Tokenizes a goatspeak query string into a list of Token objects.
+
+        Args:
+            query (str): The goatspeak query string to tokenize.
+
+        Returns:
+            list[Token]: A list of Token objects representing the tokenized query.
+
+        Usage:
+            ```python
+            tokens = Tokenizer().tokenize('SELECT 5 div IF @class = "item";')
+            print(len(tokens))  # 8
+            ```
         """
         query = self._preprocess_query(query)
         
@@ -121,24 +151,37 @@ class Tokenizer:
 
 class Parser(ABC):
     """
+    Abstract base class for parsers that convert tokens into command objects.
     """
     @abstractmethod
     def parse(self, tokens: list[Token], index) -> tuple:
         """
+        Parses tokens starting from the given index and returns a command object and the new index.
+
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing the parsed command object and the updated index.
         """
         pass
 
 
 class FlagParser(Parser):
     """
+    A parser for flags in goatspeak commands.
     """
-    def __init__(self):
+    def parse(self, tokens: list[Token], index: int) -> tuple:
         """
-        """
-        pass
+        Parses flags starting from the given index and returns a dictionary of flags and the new index.
 
-    def parse(self, tokens, index) -> tuple:
-        """
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing a dictionary of flags and the updated index.
         """
         flags = {}
         
@@ -160,13 +203,20 @@ class FlagParser(Parser):
 
 class ConditionParser(Parser):
     """
+    A parser for conditions in goatspeak commands.
     """
-    def __init__(self):
+    def parse(self, tokens: list[Token], index: int, element: str) -> tuple:
         """
-        """
-        pass
+        Parses a condition starting from the given index and returns a condition object and the new index.
 
-    def parse(self, tokens, index, element) -> tuple:
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+            element (str): The element type being queried.
+
+        Returns:
+            tuple: A tuple containing the parsed condition object and the updated index.
+        """
         negated = False
         if tokens[index].type == TokenType.NEGATION:
             negated = True
@@ -233,15 +283,29 @@ class ConditionParser(Parser):
 
 class ScrapeSelectParser(Parser):
     """
+    A parser for scrape/select commands in goatspeak.
     """
     def __init__(self, condition_parser: ConditionParser, flag_parser: FlagParser):
         """
+        Initializes a ScrapeSelectParser instance.
+
+        Args:
+            condition_parser (ConditionParser): An instance of ConditionParser to parse conditions.
+            flag_parser (FlagParser): An instance of FlagParser to parse flags.
         """
         self.condition_parser = condition_parser
         self.flag_parser = flag_parser
 
-    def parse(self, tokens, index) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple:
         """
+        Parses a scrape/select command starting from the given index and returns a GrazeCommand object and the new index.
+
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing the parsed GrazeCommand object and the updated index.
         """
         action = tokens[index].value
         index += 1
@@ -275,14 +339,27 @@ class ScrapeSelectParser(Parser):
 
 class ExtractParser(Parser):
     """
+    A parser for extract commands in goatspeak.
     """
     def __init__(self, flag_parser: FlagParser):
         """
+        Initializes an ExtractParser instance.
+
+        Args:
+            flag_parser (FlagParser): An instance of FlagParser to parse flags.
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens, index) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple:
         """
+        Parses an extract command starting from the given index and returns a ChurnCommand object and the new index.
+
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing the parsed ChurnCommand object and the updated index.
         """
         fields = []
 
@@ -305,14 +382,27 @@ class ExtractParser(Parser):
 
 class OutputParser(Parser):
     """
+    A parser for output commands in goatspeak.
     """
     def __init__(self, flag_parser: FlagParser):
         """
+        Initializes an OutputParser instance.
+
+        Args:
+            flag_parser (FlagParser): An instance of FlagParser to parse flags.
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens, index) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple:
         """
+        Parses an output command starting from the given index and returns a DeliverCommand object and the new index.
+
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing the parsed DeliverCommand object and the updated index.
         """
         index += 1
 
@@ -333,14 +423,27 @@ class OutputParser(Parser):
 
 class VisitParser(Parser):
     """
+    A parser for visit commands in goatspeak.
     """
     def __init__(self, flag_parser: FlagParser):
         """
+        Initializes a VisitParser instance.
+
+        Args:
+            flag_parser (FlagParser): An instance of FlagParser to parse flags.
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens, index) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple:
         """
+        Parses a visit command starting from the given index and returns a FetchCommand object and the new index.
+
+        Args:
+            tokens (list[Token]): The list of tokens to parse.
+            index (int): The current index in the token list.
+
+        Returns:
+            tuple: A tuple containing the parsed FetchCommand object and the updated index.
         """
         index += 1
 
@@ -361,8 +464,18 @@ class VisitParser(Parser):
 
 class Interpreter:
     """
+    A class responsible for interpreting goatspeak queries into executable commands.
     """
     def __init__(self):
+        """
+        Initializes an Interpreter instance.
+
+        Attributes:
+            tokenizer (Tokenizer): An instance of Tokenizer to tokenize queries.
+            condition_parser (ConditionParser): An instance of ConditionParser to parse conditions.
+            flag_parser (FlagParser): An instance of FlagParser to parse flags.
+            action_parsers (dict): A dictionary mapping action keywords to their respective parser instances.
+        """
         self.tokenizer = Tokenizer()
         self.condition_parser = ConditionParser()
         self.flag_parser = FlagParser()
@@ -407,6 +520,13 @@ class Interpreter:
                 
     def interpret(self, query: str) -> list[GoatspeakBlock]:
         """
+        Interprets a goatspeak query string into a list of GoatspeakBlock objects.
+
+        Args:
+            query (str): The goatspeak query string to interpret.
+
+        Returns:
+            list[GoatspeakBlock]: A list of GoatspeakBlock objects representing the interpreted
         """
         tokens = self.tokenizer.tokenize(query)
         instructions = []

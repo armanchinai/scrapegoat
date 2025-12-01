@@ -1,23 +1,36 @@
 # Interpreter Module
 
-## Token
+## Token Classes
+
+### Token
 
 ::: scrapegoat_core.classes.interpreter.Token
     options:
       show_root_heading: false
       show_root_toc_entry: false
-      heading_level: 3
+      heading_level: 4
       filters:
         - "!^_"
         - "^__init__$"
 
-## Tokenizer
+### TokenType
+
+::: scrapegoat_core.classes.interpreter.TokenType
+    options:
+      show_root_heading: false
+      show_root_toc_entry: false
+      heading_level: 4
+      filters:
+        - "!^_"
+        - "^__init__$"
+
+### Tokenizer
 
 ::: scrapegoat_core.classes.interpreter.Tokenizer
     options:
       show_root_heading: false
       show_root_toc_entry: false
-      heading_level: 3
+      heading_level: 4
       filters:
         - "!^_"
         - "^__init__$"
