@@ -5,7 +5,7 @@ import os
 
 from .gardener import Gardener
 from .goat import Goat
-from .interpreter import Interpeter
+from .interpreter import Interpreter
 from .milkmaid import Milkmaid
 from .milkman import Milkman
 from .sheepdog import Sheepdog
@@ -18,7 +18,7 @@ class Shepherd:
         """
         """
         self.gardener = gardener if gardener else Gardener()
-        self.interpreter = Interpeter()
+        self.interpreter = Interpreter()
         self.sheepdog = sheepdog if sheepdog else Sheepdog()
         self.goat = goat if goat else Goat()
         self.milkmaid = milkmaid if milkmaid else Milkmaid()
@@ -49,9 +49,7 @@ class Shepherd:
         try:
             return self.interpreter.interpret(query)
         except Exception as e:
-            raise e
-            
-            
+            raise e                
 
     def _query_list_handler(self, query_list: str, root, results) -> list:
         """

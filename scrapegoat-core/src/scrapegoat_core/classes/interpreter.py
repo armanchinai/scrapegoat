@@ -359,7 +359,7 @@ class VisitParser(Parser):
         return instruction, index + 1
 
 
-class Interpeter:
+class Interpreter:
     """
     """
     def __init__(self):
