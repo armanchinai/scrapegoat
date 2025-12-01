@@ -13,8 +13,8 @@ class Goat:
         Executes a series of graze commands starting from the given root node.
 
         Args:
-            root: The starting HTMLNode from which to execute the graze commands.
-            graze_commands: A list of GrazeCommand objects to be executed in sequence.
+            root (HTMLNode): The starting HTMLNode from which to execute the graze commands.
+            graze_commands (["GrazeCommand"]): A list of GrazeCommand objects to be executed in sequence.
 
         Returns:
             A list of HTMLNode objects that are the result of executing the graze commands.

@@ -55,11 +55,6 @@ class Gardener(HTMLParser):
 
     def handle_starttag(self, tag_type: str, html_attributes: list[tuple[str, str]]) -> None:
         """
-        Handles the start tag of an HTML element.
-
-        Args:
-            tag_type (str): The type of the HTML tag being opened.
-            html_attributes (list[tuple[str, str]]): A list of tuples representing the HTML attributes of the tag.
         """
         self._auto_close_before(tag_type)
 
@@ -85,10 +80,6 @@ class Gardener(HTMLParser):
 
     def handle_endtag(self, tag_type: str) -> None:
         """
-        Handles the end tag of an HTML element.
-
-        Args:
-            tag_type (str): The type of the HTML tag being closed.
         """
         for i in range(len(self.stack)-1, -1, -1):
             if self.stack[i].tag_type == tag_type:
@@ -98,10 +89,6 @@ class Gardener(HTMLParser):
 
     def handle_data(self, data: str) -> None:
         """
-        Handles the text data within HTML elements.
-
-        Args:
-            data (str): The text data found between HTML tags.
         """
         stripped = data.strip()
         if not stripped:

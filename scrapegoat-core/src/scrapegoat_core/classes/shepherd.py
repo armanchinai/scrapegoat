@@ -15,7 +15,7 @@ class Shepherd:
     """
     The master class that orchestrates the query to data scraping process. This class delegates its job to subclasses like the Gardener, Sheepdog, Goat, Milkmaid, and Milkman. All subclasses can be extended and passed into the Shepherd constructor to customize its behavior.
     """
-    def __init__(self, gardener=None, sheepdog=None, goat=None, milkmaid=None, milkman=None):
+    def __init__(self, gardener:Gardener=None, sheepdog:Sheepdog=None, goat:Goat=None, milkmaid:Milkmaid=None, milkman:Milkman=None):
         """
         The Shepherd class constructor.
 

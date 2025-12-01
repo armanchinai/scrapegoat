@@ -9,6 +9,13 @@ from .command import FetchCommand
 
 class Sheepdog:
     """
+    The Sheepdog class is responsible for fetching HTML content from the web. By default, it uses the requests library to perform HTTP GET requests, and has its own default headers to mimic a standard web browser.
+
+    Hint:
+        This is one of Scrapegoat's highly extendable classes. You can extend this class to implement custom fetching behavior, such as using headless browsers or handling specific authentication mechanisms. Alternatively, a custom getter function can be passed into the constructor to override the default fetching behavior.
+
+    Attributes:
+        DEFAULT_HEADERS (dict): A dictionary of default HTTP headers to use for requests.
     """
     DEFAULT_HEADERS = {
         "User-Agent": "Mozilla/5.0 (Scrapegoat)",
@@ -22,13 +29,29 @@ class Sheepdog:
         "Sec-Fetch-Mode": "navigate",
     }
 
-    def __init__(self, getter=None):
+    def __init__(self, getter: callable=None):
         """
+        Initializes an instance of the Sheepdog class. Accepts an optional custom getter function. 
+
+        Args:
+            getter (callable, optional): A custom function to fetch HTML content. Defaults to None, which uses the default getter method.
         """
         self.getter = getter or self.getter
 
     def fetch(self, fetch_command: Union[str, FetchCommand]) -> str:
         """
+        Fetches HTML content using the provided fetch command or URL string.
+
+        Args:
+            fetch_command (Union[str, FetchCommand]): A FetchCommand object or a URL string to fetch HTML content from.
+
+        Returns:
+            str: The fetched HTML content.
+
+        Usage:
+            ```python
+            html_content = Sheepdog().fetch("http://example.com")
+            ```
         """
         if not isinstance(fetch_command, FetchCommand):
             fetch_command = FetchCommand(fetch_command)
@@ -46,14 +69,37 @@ class Sheepdog:
 
 class HeadlessSheepdog(Sheepdog):
     """
+    The HeadlessSheepdog class extends the Sheepdog class to fetch HTML content using a headless browser via the Playwright library. This class uses a very simple implementation that will wait for the DOM content to load before returning the HTML.
+
+    Warning:
+        The Playwright library must be installed separately. If it is not installed, a RuntimeError will be raised when attempting to fetch content. To install Playwright, run 'pip install playwright' in your terminal.
+
+    Warning:
+        A headless browser must be installed on the local device. If one is not installed, a RuntimeError will be raised when attempting to fetch content. To install the executables, run 'playwright install' in your terminal.
     """
     def __init__(self, getter=None):
         """
+        Initializes an instance of the HeadlessSheepdog class. Accepts an optional custom getter function.
+
+        Args:
+            getter (callable, optional): A custom function to fetch HTML content. Defaults to None, which uses the default Playwright-based getter method.
         """
         super().__init__(getter)
 
-    def getter(self, url: str, **kwargs):
+    def getter(self, url: str, **kwargs) -> str:
         """
+        Fetches HTML content from the given URL using a headless browser via Playwright.
+
+        Args:
+            url (str): The URL to fetch HTML content from.
+
+        Returns:
+            str: The fetched HTML content.
+
+        Usage:
+            ```python
+            html_content = HeadlessSheepdog().fetch("http://example.com")
+            ```
         """
         try:
             from playwright.sync_api import sync_playwright
