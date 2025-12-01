@@ -61,7 +61,6 @@ class Tokenizer:
         OPERATORS (set): A set of valid operators.
         NEGATIONS (set): A set of valid negation keywords.
         FILE_TYPES (set): A set of valid file type keywords.
-        FLAGS (set): A set of valid flag keywords.
     """
     ACTIONS = {"select", "scrape", "extract", "output", "visit"}
     CONDITIONALS = {"if", "in"}
@@ -69,7 +68,6 @@ class Tokenizer:
     OPERATORS = {"=", "!=", "like"}
     NEGATIONS = {"not"}
     FILE_TYPES = {"json", "csv"}
-    FLAGS = {}
 
     def _preprocess_query(self, query: str) -> str:
         """
@@ -155,7 +153,7 @@ class Parser(ABC):
     Abstract base class for all parsers to inherit from. Defines the parse method that must be implemented by subclasses.
     """
     @abstractmethod
-    def parse(self, tokens: list[Token], index) -> tuple:
+    def parse(self, tokens: list[Token], index) -> tuple[object, int]:
         """
         Parses tokens starting from the given index and returns a command object and the new index.
 
@@ -173,7 +171,7 @@ class FlagParser(Parser):
     """
     A parser for flags in goatspeak commands.
     """
-    def parse(self, tokens: list[Token], index: int) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple[dict, int]:
         """
         Parses flags starting from the given index and returns a dictionary of flags and the new index.
 
@@ -209,7 +207,7 @@ class ConditionParser(Parser):
     """
     A parser for conditions in goatspeak commands.
     """
-    def parse(self, tokens: list[Token], index: int, element: str) -> tuple:
+    def parse(self, tokens: list[Token], index: int, element: str) -> tuple["Condition", int]: # type: ignore
         """
         Parses a condition starting from the given index and returns a condition object and the new index.
 
@@ -303,7 +301,7 @@ class ScrapeSelectParser(Parser):
         self.condition_parser = condition_parser
         self.flag_parser = flag_parser
 
-    def parse(self, tokens: list[Token], index: int) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple[GrazeCommand, int]:
         """
         Parses a scrape/select command starting from the given index and returns a GrazeCommand object and the new index.
 
@@ -360,7 +358,7 @@ class ExtractParser(Parser):
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens: list[Token], index: int) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple[ChurnCommand, int]:
         """
         Parses an extract command starting from the given index and returns a ChurnCommand object and the new index.
 
@@ -403,7 +401,7 @@ class OutputParser(Parser):
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens: list[Token], index: int) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple[DeliverCommand, int]:
         """
         Parses an output command starting from the given index and returns a DeliverCommand object and the new index.
 
@@ -447,7 +445,7 @@ class VisitParser(Parser):
         """
         self.flag_parser = flag_parser
 
-    def parse(self, tokens: list[Token], index: int) -> tuple:
+    def parse(self, tokens: list[Token], index: int) -> tuple[FetchCommand, int]:
         """
         Parses a visit command starting from the given index and returns a FetchCommand object and the new index.
 

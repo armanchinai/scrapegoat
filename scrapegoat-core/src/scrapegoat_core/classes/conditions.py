@@ -69,7 +69,7 @@ class IfCondition(Condition):
         self.query_tag = query_tag
         self.like = like
 
-    def matches(self, node: "HTMLNode", _=None) -> bool: # type: ignore
+    def matches(self, node: "HTMLNode", _:"HTMLNode"=None) -> bool: # type: ignore
         """
         Determines if the condition matches the given node.
 

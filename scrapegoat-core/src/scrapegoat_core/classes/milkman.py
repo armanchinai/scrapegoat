@@ -11,7 +11,7 @@ class Milkman:
     Hint:
         This class is one of Scrapegoat's highly extendable classes. You can create your own Milkman subclass to implement custom file handling behavior to use with the Shepherd master class.
     """
-    def deliver(self, results: list, deliver_command: "DeliverCommand") -> None: # type: ignore
+    def deliver(self, results: list["HTMLNode"], deliver_command: "DeliverCommand") -> None: # type: ignore
         """
         Delivers the scraped results using the specified DeliverCommand.
 

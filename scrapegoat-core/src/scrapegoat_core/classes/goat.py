@@ -8,7 +8,7 @@ class Goat:
     Hint:
         This class is one of Scrapegoat's highly extendable classes. You can create your own Goat subclass to implement custom grazing behavior to use with the Shepherd master class.
     """
-    def feast(self, root: "HTMLNode", graze_commands: ["GrazeCommand"]) -> list: # type: ignore
+    def feast(self, root: "HTMLNode", graze_commands: ["GrazeCommand"]) -> list["HTMLNode"]: # type: ignore
         """
         Executes a series of graze commands starting from the given root node.
 

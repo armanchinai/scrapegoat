@@ -14,6 +14,8 @@ from .sheepdog import Sheepdog
 class Shepherd:
     """
     The master class that orchestrates the query to data scraping process. This class delegates its job to subclasses like the Gardener, Sheepdog, Goat, Milkmaid, and Milkman. All subclasses can be extended and passed into the Shepherd constructor to customize its behavior.
+
+    Users should primarily interact with this class to perform webscraping with Scrapegoat. It exposes methods to execute goatspeak queries from strings or files, starting from URLs, raw HTML, or existing HTMLNode trees.
     """
     def __init__(self, gardener:Gardener=None, sheepdog:Sheepdog=None, goat:Goat=None, milkmaid:Milkmaid=None, milkman:Milkman=None):
         """
@@ -33,7 +35,7 @@ class Shepherd:
         self.milkmaid = milkmaid if milkmaid else Milkmaid()
         self.milkman = milkman if milkman else Milkman()
     
-    def herd(self, query: str) -> list:
+    def herd(self, query: str) -> list["HTMLNode"]: # type: ignore
         """
         Executes the full data scraping process based on the provided goatspeak query. Accepts either a goatspeak string or a file path to a goatspeak file.
 
@@ -99,7 +101,7 @@ class Shepherd:
                 
         return list(dict.fromkeys(results))
     
-    def herd_from_node(self, query: str, root: "HTMLNode") -> list: # type: ignore
+    def herd_from_node(self, query: str, root: "HTMLNode") -> list["HTMLNode"]: # type: ignore
         """
         Executes a goatspeak query starting from a given HTMLNode.
 
@@ -118,7 +120,7 @@ class Shepherd:
         """
         return self._local_herd(query, root=root)
     
-    def herd_from_html(self, query: str, html: str) -> list:
+    def herd_from_html(self, query: str, html: str) -> list["HTMLNode"]: # type: ignore
         """
         Grows an HTMLNode tree from raw HTML and executes a goatspeak query on it.
 
@@ -138,7 +140,7 @@ class Shepherd:
         root = self.gardener.grow_tree(html)
         return self._local_herd(query, root=root)
     
-    def herd_from_url(self, query: str, url: str) -> list:
+    def herd_from_url(self, query: str, url: str) -> list["HTMLNode"]: # type: ignore
         """
         Fetches HTML from a URL, grows an HTMLNode tree, and executes a goatspeak query on it.
 

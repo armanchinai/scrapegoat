@@ -8,7 +8,7 @@ class Milkmaid:
     Hint:
         This class is one of Scrapegoat's highly extendable classes. You can create your own Milkmaid subclass to implement custom data extraction behavior to use with the Shepherd master class.
     """
-    def churn(self, results: list, churn_command: "ChurnCommand") -> None: # type: ignore
+    def churn(self, results: list["HTMLNode"], churn_command: "ChurnCommand") -> None: # type: ignore
         """
         Updates the HTMLNodes representation to extract data according to the specified ChurnCommand.
 

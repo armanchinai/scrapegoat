@@ -12,25 +12,43 @@ from .conditions import InCondition
 
 class Command(ABC):
     """
+    The base Command class for defining various commands used in goatspeak. Each command must implement the execute method.
     """
     @abstractmethod
     def __init__(self, action: str):
         """
+        Initializes the Command.
+
+        Args:
+            action (str): The action type of the command.
         """
         self.action = action
 
     @abstractmethod
-    def execute(self, root) -> any:
+    def execute(self, root: "HTMLNode") -> any: # type: ignore
         """
+        Executes the command.
+        
+        Args:
+            root: The root HTMLNode on which to execute the command.
         """
         pass
 
 
 class GrazeCommand(Command):
     """
+    The GrazeCommand class for defining commands to parse HTMLNodes from tree structures. A GrazeCommand can either be a select, which rebases the root node for subsequent commands, or a scrape, which extracts the entire set of matching nodes. GrazeCommands can also include conditions to filter the nodes they operate on.
     """
-    def __init__(self, action: str, count: int, element: str, conditions: list=None, flags: list=None):
+    def __init__(self, action: str, count: int, element: str, conditions: list["Condition"]=None, flags: list=None): # type: ignore
         """
+        Initializes the GrazeCommand.
+
+        Args:
+            action (str): The action type of the command ("select" or "scrape").
+            count (int): The maximum number of elements to return. Use 0 for no limit.
+            element (str): The HTML tag to target.
+            conditions (list, optional): A list of Condition objects to filter the nodes. Defaults to None.
+            flags (list, optional): A list of flags to modify command behavior. Defaults to None.
         """
         super().__init__(action=action)
         self.count = count
@@ -49,8 +67,15 @@ class GrazeCommand(Command):
             return False
         return all(cond.evaluate(node, root) for cond in self.conditions)
     
-    def execute(self, root) -> list:
+    def execute(self, root: "HTMLNode") -> list["HTMLNode"]: # type: ignore
         """
+        Executes the GrazeCommand on the given root HTMLNode.
+
+        Args:
+            root (HTMLNode): The root HTMLNode from which to execute the command.
+
+        Returns:
+            list: A list of HTMLNode objects that match the command criteria.
         """
         results = []
         for node in root.preorder_traversal():
@@ -63,9 +88,17 @@ class GrazeCommand(Command):
 
 class ChurnCommand(Command):
     """
+    The ChurnCommand class for defining how an HTMLNode is to be represented after being scraped. This command is used to extract specific data from the scraped nodes. Special flags also exist to direct whether a node should hold onto its children through representation, or if it should be represented as a table.
     """
-    def __init__(self, fields: list = None, ignore_children: bool = False, ignore_grandchildren: bool = False, table: bool = False):
+    def __init__(self, fields: list[str] = None, ignore_children: bool = False, ignore_grandchildren: bool = False, table: bool = False):
         """
+        Initializes the ChurnCommand.
+
+        Args:
+            fields (list, optional): A list of fields to extract from the node. Defaults to None.
+            ignore_children (bool, optional): Whether to ignore child nodes during extraction. Defaults to False.
+            ignore_grandchildren (bool, optional): Whether to ignore grandchild nodes during extraction. Defaults to False.
+            table (bool, optional): Whether to represent the node as a table. Defaults to False.
         """
         super().__init__(action="extract")
         self.fields = fields
@@ -73,19 +106,33 @@ class ChurnCommand(Command):
         self.ignore_grandchildren = ignore_grandchildren
         self.table = table
     
-    def execute(self, node) -> None:
+    def execute(self, node: "HTMLNode") -> None: # type: ignore
         """
+        Executes the ChurnCommand on the given HTMLNode.
+
+        Args:
+            node (HTMLNode): The HTMLNode to extract data from.
         """
         node.set_extract_instructions(self.fields, self.ignore_children, self.ignore_grandchildren, self.table)
         
 
 class DeliverCommand(Command):
     """
+    The DeliverCommand class for defining how scraped HTMLNode results are to be delivered to a file. Supports CSV and JSON formats.
+
+    Attributes:
+        VALID_TYPES (set): A set of valid file types for delivery ("csv", "json").
     """
     VALID_TYPES = {"csv", "json"}
 
     def __init__(self, file_type: str, filepath: str = None, filename: str = None):
         """
+        Initializes the DeliverCommand.
+
+        Args:
+            file_type (str): The type of file to deliver the results to ("csv" or "json").
+            filepath (str, optional): The directory path where the file will be saved. Defaults to the current working directory.
+            filename (str, optional): The name of the file. If not provided, a default name will be used. Defaults to None.
         """
         super().__init__(action="output")
         self.file_type = file_type
@@ -94,8 +141,15 @@ class DeliverCommand(Command):
         self.filename = base + (ext if ext else f".{file_type}")
         self.full_path = os.path.join(self.filepath, self.filename)
 
-    def execute(self, nodes: list) -> str:
+    def execute(self, nodes: list["HTMLNode"]) -> str: # type: ignore
         """
+        Executes the DeliverCommand to save the scraped HTMLNode results to a file.
+
+        Args:
+            nodes (list): A list of scraped HTMLNode results.
+
+        Returns:
+            str: The full path to the saved file.
         """
         os.makedirs(self.filepath, exist_ok=True)
 
@@ -175,9 +229,15 @@ class DeliverCommand(Command):
 
 class FetchCommand(Command):
     """
+    The FetchCommand class executes the getter function from its attributes to retrieve HTML content from a specified URL. By default, it uses the requests.get method, but this can be overridden by providing a custom getter function. The Sheepdog class is the primary way of overriding the default getter.
     """
     def __init__(self, url: str, **kwargs):
         """
+        Initializes the FetchCommand.
+
+        Args:
+            url (str): The URL to fetch HTML content from.
+            **kwargs: Additional keyword arguments to pass to the getter function.
         """
         super().__init__(action="visit")
         self.getter = requests.get
@@ -186,11 +246,19 @@ class FetchCommand(Command):
     
     def execute(self) -> str:
         """
+        Executes the FetchCommand to retrieve HTML content from the specified URL.
+
+        Returns:
+            str: The fetched HTML content.
         """
         return self.getter(self.url, **self.kwargs)
     
-    def set_getter(self, getter):
+    def set_getter(self, getter: callable) -> None:
         """
+        Sets a custom getter function for fetching HTML content.
+
+        Args:
+            getter (callable): A custom function that takes a URL and returns HTML content.
         """
         self.getter = getter
     
