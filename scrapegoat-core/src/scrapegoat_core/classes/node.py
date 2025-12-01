@@ -22,54 +22,22 @@ class HTMLNode:
         self.retrieval_instructions = ""
         self.parent = parent
         self.extract_fields = None
-        self.extract_flags = {"ignore_children": False, "ignore_grandchildren": False}
+        self.extract_flags = {"ignore_children": False, "ignore_grandchildren": False, "table": False}
     
     def to_dict(self, ignore_children=False) -> str:
         """
         """
+        if self.extract_flags["table"]:
+            if self.tag_type != "table":
+                raise ValueError("Table extraction requested on a non-table node")
+            return self._handle_table_extract()
         ignore_children = self.extract_flags["ignore_children"] or ignore_children
         for child in self.children:
             child.set_extract_instructions(fields=self.extract_fields, ignore_children=self.extract_flags["ignore_grandchildren"])
-        dict_representation = {}
         if self.extract_fields:
-            for field in self.extract_fields:
-                if field[0] == "@":
-                    dict_representation[field] = self.html_attributes.get(field, None)
-                else:
-                    if field == "id":
-                        dict_representation["id"] = self.id
-                    elif field == "tag_type":
-                        dict_representation["tag_type"] = self.tag_type
-                    elif field == "has_data":
-                        dict_representation["has_data"] = self.has_data
-                    elif field == "html_attributes":
-                        dict_representation["html_attributes"] = self.html_attributes
-                    elif field == "body":
-                        dict_representation["body"] = self.body
-                    elif field == "children" and not ignore_children:
-                        dict_representation["children"] = [child.to_dict() for child in self.children]
-                    elif field == "retrieval_instructions":
-                        dict_representation["retrieval_instructions"] = self.retrieval_instructions
-                    elif field == "parent":
-                        dict_representation["parent"] = self.parent.id if self.parent else None
-                    elif field == "extract_fields":
-                        dict_representation["extract_fields"] = self.extract_fields
-                    elif field == "extract_flags":
-                        dict_representation["extract_flags"] = self.extract_flags
-            return dict_representation
+            return self._handle_extract_fields(ignore_children)
         if ignore_children:
-            return {
-                "id": self.id,
-                "raw": self.raw,
-                "tag_type": self.tag_type,
-                "has_data": self.has_data,
-                "html_attributes": self.html_attributes,
-                "body": self.body,
-                "retrieval_instructions": self.retrieval_instructions,
-                "parent": self.parent.id if self.parent else None,
-                "extract_fields": self.extract_fields,
-                "extract_flags": self.extract_flags,
-            }
+            return self._handle_ignore_children()
         return {
             "id": self.id,
             "raw": self.raw,
@@ -83,6 +51,100 @@ class HTMLNode:
             "extract_fields": self.extract_fields,
             "extract_flags": self.extract_flags,
         }    
+    
+    def _handle_extract_fields(self, ignore_children: bool) -> dict  :
+        """
+        """
+        dict_representation = {}
+        for field in self.extract_fields:
+            if field[0] == "@":
+                dict_representation[field] = self.html_attributes.get(field, None)
+            else:
+                if field == "id":
+                    dict_representation["id"] = self.id
+                elif field == "tag_type":
+                    dict_representation["tag_type"] = self.tag_type
+                elif field == "has_data":
+                    dict_representation["has_data"] = self.has_data
+                elif field == "html_attributes":
+                    dict_representation["html_attributes"] = self.html_attributes
+                elif field == "body":
+                    dict_representation["body"] = self.body
+                elif field == "children" and not ignore_children:
+                    dict_representation["children"] = [child.to_dict() for child in self.children]
+                elif field == "retrieval_instructions":
+                    dict_representation["retrieval_instructions"] = self.retrieval_instructions
+                elif field == "parent":
+                    dict_representation["parent"] = self.parent.id if self.parent else None
+                elif field == "extract_fields":
+                    dict_representation["extract_fields"] = self.extract_fields
+                elif field == "extract_flags":
+                    dict_representation["extract_flags"] = self.extract_flags
+        return dict_representation
+    
+    def _handle_ignore_children(self) -> dict:
+        """
+        """
+        return {
+            "id": self.id,
+            "raw": self.raw,
+            "tag_type": self.tag_type,
+            "has_data": self.has_data,
+            "html_attributes": self.html_attributes,
+            "body": self.body,
+            "retrieval_instructions": self.retrieval_instructions,
+            "parent": self.parent.id if self.parent else None,
+            "extract_fields": self.extract_fields,
+            "extract_flags": self.extract_flags,
+        }
+    
+    def _handle_table_extract(self) -> list:
+        """
+        Convert the <table> into a list of row JSON objects.
+        Each row is a dict: {header: cell_value}
+        """
+        trows = self.get_descendants(tag_type="tr")
+
+        if not trows:
+            return []
+
+        # Extract header row
+        header_row = trows[0]
+        headers = []
+
+        header_cells = (
+            header_row.get_descendants(tag_type="th") +
+            header_row.get_descendants(tag_type="td")
+        )
+
+        for cell in header_cells:
+            # Hoist descendant text
+            for child in cell.get_descendants():
+                cell.body += " " + child.body
+            headers.append(cell.body.strip())
+
+        # Extract data rows
+        result = []
+
+        for tr in trows[1:]:
+            cells = tr.get_descendants(tag_type="td") + tr.get_descendants(tag_type="th")
+            row = {}
+
+            for col_index, header in enumerate(headers):
+                if col_index < len(cells):
+                    cell = cells[col_index]
+
+                    for child in cell.get_descendants():
+                        cell.body += " " + child.body
+
+                    row[header] = cell.body.strip()
+                else:
+                    row[header] = ""
+
+            result.append(row)
+        return result
+
+
 
     def to_string(self) -> str:
         """
@@ -280,17 +342,18 @@ class HTMLNode:
         """
         self.retrieval_instructions = instruction
 
-    def set_extract_instructions(self, fields: list=None, ignore_children=False, ignore_grandchildren=False):
+    def set_extract_instructions(self, fields: list=None, ignore_children=False, ignore_grandchildren=False, table=False):
         """
         """
         self.extract_fields = fields or None
-        self.extract_flags = {"ignore_children": ignore_children, "ignore_grandchildren": ignore_grandchildren}
+        self.extract_flags = {"ignore_children": ignore_children, "ignore_grandchildren": ignore_grandchildren, "table": table}
 
     def clear_extract_instructions(self):
         """
         """
         self.extract_fields = None
         self.extract_flags = None
+        self.table = False
 
 
 def main():
