@@ -39,9 +39,11 @@ nav:
   - Why use Scrapegoat?: why-scrapegoat.md
   - Installation: installation.md
   - Getting Started: getting-started.md
+  - Goatspeak: goatspeak.md
   - Tutorials:
-      - Basic Usage: tutorials/basic-usage.md
-      - Advanced Features: tutorials/advanced-features.md
+      - Core Tutorial: tutorials/core-tutorial.md
+      - Loom Tutorial: tutorials/loom-tutorial.md
+      - CLI Tutorial: tutorials/cli-tutorial.md
   - Core:
       - Overview: core/index.md
       - Classes:
