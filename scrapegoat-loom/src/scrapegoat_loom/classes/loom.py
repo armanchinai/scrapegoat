@@ -1,3 +1,4 @@
+import asyncio
 from requests.exceptions import HTTPError, MissingSchema
 from scrapegoat_core.exceptions import ScrapegoatFetchException, ScrapegoatPlaywrightException
 from textual.app import App, SystemCommand
@@ -370,6 +371,8 @@ class SetURLModal(ModalScreen):
 		super().__init__(**kwargs)
 		self.prev_url = ""
 		self.curr_url = ""
+		self.prev_check = False
+		self.curr_check = False
 		self.button = Button("Visit", id="url-confirm", variant="error")
 
 	def compose(self):
@@ -378,6 +381,7 @@ class SetURLModal(ModalScreen):
 		yield Checkbox("Use Headless", value=False, id="url-headless-check")
 	
 	def on_button_pressed(self, _):
+		self.prev_check = self.curr_check
 		self.prev_url = self.curr_url
 		self.button.variant = "error"
 		self.app.pop_screen()
@@ -385,7 +389,15 @@ class SetURLModal(ModalScreen):
 	def on_input_changed(self, event: Input.Changed):
 		self.curr_url = event.input.value
 
-		if self.curr_url == self.prev_url:
+		if self.curr_url == self.prev_url and self.prev_check == self.curr_check:
+			self.button.variant = "error"
+		else:
+			self.button.variant = "success"
+	
+	def on_checkbox_changed(self, event: Checkbox.Changed):
+		self.curr_check = event.checkbox.value
+
+		if self.curr_url == self.prev_url and self.prev_check == self.curr_check:
 			self.button.variant = "error"
 		else:
 			self.button.variant = "success"
@@ -573,6 +585,7 @@ class Loom(App):
 		self.sub_title = "untitled.goat"
 		self.prev_url = ""
 		self.url = ""
+		self.prev_headless_check = False
 		self.url_req_headless = False
 		self.has_tree = False
 		self.nodes = {}
@@ -677,8 +690,8 @@ class Loom(App):
 			self.control_panel.remove_query(self.selected_query)
 			self.selected_query = None
 
-	def update_url(self) -> None:
-		if self.url == self.prev_url:
+	async def update_url(self) -> None:
+		if self.url == self.prev_url and self.prev_headless_check == self.url_req_headless:
 			return
 
 		try:
@@ -687,7 +700,8 @@ class Loom(App):
 			if not self.url_req_headless:
 				html = Sheepdog().fetch(self.url)
 			elif self.url_req_headless:
-				html = HeadlessSheepdog().fetch(self.url)
+				dog = HeadlessSheepdog()
+				html = await asyncio.to_thread(dog.fetch, self.url)
 
 			root = Gardener().grow_tree(html)
 
@@ -698,13 +712,14 @@ class Loom(App):
 			self.has_tree = True
 			self.control_panel.update_url(self.url)
 			self.prev_url = self.url
+			self.prev_headless_check = self.url_req_headless
 			self.control_panel.update_node(self.nodes[new_tree.root._html_node_id])
 		except HTTPError:
 			self.notify("The URL you entered could not be reached. Please check your internet connection and try again.", title="Could Not Resolve URL", severity="warning", timeout=10)
 		except MissingSchema:
 			self.notify("The URL you entered is invalid. Please try again.", title="Could Not Resolve URL", severity="warning", timeout=10)
 		except ScrapegoatPlaywrightException:
-			self.notify("Playwright is not installed. Please install it with 'pip install playwright'.", title="Module Not Found", severity="information", timeout=10)
+			self.notify("Playwright is not installed. Please install it with 'pip install playwright' and 'playwright install'.", title="Module Not Found", severity="information", timeout=10)
 		except ScrapegoatFetchException as e:
 			self.notify(f"{e}", title="Playwright Error", severity="error", timeout=10)
 		except:
@@ -718,9 +733,9 @@ class Loom(App):
 			if self.control_panel:
 				self.control_panel.update_node(self.nodes.get(event.node._html_node_id, None))
 
-	def on_button_pressed(self, event: Button.Pressed) -> None:
+	async def on_button_pressed(self, event: Button.Pressed) -> None:
 		if event.button.id == "url-confirm":
-			self.update_url()
+			await self.update_url()
 		elif event.button.id == "save-as-confirm":
 			self.action_save()
 
