@@ -37,6 +37,8 @@ Nobody would put up with that, yet that's exactly what we do when scraping the w
     })
     response.raise_for_status()
 
+    soup = BeautifulSoup(response.text, "html.parser")
+
     ingredient_spans = soup.select("span.o-Ingredients__a-Ingredient--CheckboxLabel")
 
     ingredients = []
