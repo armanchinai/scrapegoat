@@ -48,22 +48,13 @@ response.raise_for_status()
 
 soup = BeautifulSoup(response.text, 'html.parser')
 
-ingredients_section = soup.find("section", class_="o-Ingredients")
-ingredients_body = ingredients_section.find("div", class_="o-Ingredients__m-Body")
+ingredient_spans = soup.select("span.o-Ingredients__a-Ingredient--CheckboxLabel")
 
 ingredients = []
-
-for p in ingredients_body.find_all("p"):
-    label = p.find("label")
-    if not label:
-    continue
-
-    spans = label.find_all("span")
-    if len(spans) >= 2:
-    ingredient_text = spans[1].get_text(strip=True)
-    if ingredient_text.lower() == "deselect all":
-        continue
-    ingredients.append(ingredient_text)
+for span in ingredient_spans:
+    body = span.get_text(strip=True)
+    if body.lower() != "deselect all":
+        ingredients.append(body)
 
 with open("ingredients.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
@@ -72,7 +63,7 @@ with open("ingredients.csv", "w", newline="", encoding="utf-8") as f:
     writer.writerow([ingredient])
 ````
 
-As you can see, even for a simple task like extracting ingredients from a recipe page, we have to write a lot of boilerplate code to handle HTTP requests, parse HTML, navigate the DOM, and write to a CSV file.
+As you can see, even for a simple task like extracting ingredients from a recipe page, we have to write a lot of boilerplate code to handle HTTP requests, parse HTML, navigate the DOM, and write to a CSV file. With more complex tasks, the code only gets longer and more unwieldy. Stacking this up over multiple pages or sites quickly becomes a nightmare.
 
 ## The Scrapegoat Solution
 Scrapegoat started with a question: *Why can't we query web pages like we query a database?*
