@@ -24,7 +24,7 @@ Even simple tasks require dozens of lines of glue code just to fetch a page, par
 Imagine if, everytime you wanted to pull data from a database, you had to write code to connect to the database, write code to traverse the table and find your data, and then parse the results into a usable format.
 Nobody would put up with that, yet that's exactly what we do when scraping the web.
 
-This code fetches a recipe page and extracts the list of ingredients into a CSV file ignoring the "Deselect All" option contained in the list.
+This code fetches a recipe page and extracts the list of ingredients into a CSV file ignoring, the "Deselect All" option contained in the list.
 
 ````python
 import requests

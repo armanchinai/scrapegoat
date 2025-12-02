@@ -15,7 +15,7 @@ Nobody would put up with that, yet that's exactly what we do when scraping the w
 
 !!! failure "Webscraping with BeautifulSoup"
 
-    This code fetches a recipe page and extracts the list of ingredients into a CSV file ignoring the "Deselect All" option contained in the list.
+    This code fetches a recipe page and extracts the list of ingredients into a CSV file, ignoring the "Deselect All" option contained in the list.
 
     ````python
     import requests
