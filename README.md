@@ -1,4 +1,4 @@
-# Introduction
+# Scrapegoat
 
 Welcome to the Scrapegoat Repository!
 This is where all the code and documentation for Scrapegoat lives.
