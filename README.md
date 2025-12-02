@@ -10,6 +10,7 @@ Read on to discover how Scrapegoat can revolutionize your webscraping experience
 Is this page not what you are looking for?
 Below are all of Scrapegoat's links in one place for your convenience:
 
+- [GitHub Repository](https://github.com/ChinaiArman/scrapegoat)
 - [Documentation Home](https://chinaiarman.github.io/scrapegoat/)
 - [Scrapegoat Core PyPI Package](https://pypi.org/project/scrapegoat-core/)
 - [Scrapegoat Loom PyPI Package](https://pypi.org/project/scrapegoat-loom/)
