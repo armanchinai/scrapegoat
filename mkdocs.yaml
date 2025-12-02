@@ -57,7 +57,7 @@ nav:
       - Overview: core/index.md
       - Classes:
           - Block: core/classes/block.md
-          - Command: core/classes/command.md
+          - Commands: core/classes/commands.md
           - Conditions: core/classes/conditions.md
           - Gardener: core/classes/gardener.md
           - Goat: core/classes/goat.md
