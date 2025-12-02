@@ -58,6 +58,7 @@ Nobody would put up with that, yet that's exactly what we do when scraping the w
 ## The Scrapegoat Solution
 Scrapegoat started with a question: *Why can't we query web pages like we query a database?*
 
+### Query-Centric Design
 Scrapegoat is designed with the query at the center.
 You shouldn't have to write boilerplate, string libraries together, or even think about the underlying plumbing.
 With Scrapegoat, you write queries that express *what* data you want to extract, and Scrapegoat takes care of *how* to get it.
@@ -84,7 +85,7 @@ With Scrapegoat, you write queries that express *what* data you want to extract,
     scrapegoat path/to/file.goat
     ````
 
-## Goatspeak: The Querying Language for Scrapegoat
+### Goatspeak: The Querying Language for Scrapegoat
 At the heart of Scrapegoat is Goatspeak, a domain-specific language (DSL) designed specifically for webscraping.
 Goatspeak allows you to express complex scraping tasks in a concise and readable way.
 
@@ -107,11 +108,11 @@ However, if building queries isn't your style, Scrapegoat also provides an entir
 Furthermore, Goatspeak queries are designed to be portable and reusable.
 Simply save a query into a `.goat` file, and it can be shared and run anywhere Scrapegoat is installed.
 
-## Enhanced Development Experience with Linter and LSP
+### Enhanced Development Experience with Linter and LSP
 To further improve your development experience with Scrapegoat, we offer a linter and Language Server Protocol (LSP) extension.
 The linter helps you catch syntax errors and potential issues in your Goatspeak scripts before you run them, while the LSP extension provides features like autocompletion, go-to-definition, and inline documentation within your code editor.
 
-## Extendability
+### Extendability
 Scrapegoat is designed to be extendable. 
 Each command in Goatspeak is run through a submanager, all of which are open to extension to add new functionality.
 Our documentation goes over extensively how and where to add new features to Scrapegoat, to ensure you receive the richest webscraping experience possible.
