@@ -4,10 +4,21 @@
 # IMPORTS
 from html.parser import HTMLParser
 from .node import HTMLNode
+from scrapegoat_core.exceptions import ScrapegoatParseException
 
 
 class Gardener(HTMLParser):
     """
+    The Gardener class is responsible for parsing raw HTML into a tree structure composed of HTMLNodes.
+    
+    Info:
+        Under the hood, the Gardener class extends Python's built-in HTMLParser to handle HTML tags, attributes, and text content.
+        When an inline tag is encountered, its text content is bubbled up to its parent node to ensure proper representation of text as it would appear on the DOM.
+
+    Attributes:
+        VOID_TAGS (set): A set of HTML tags that do not require closing tags.
+        AUTO_CLOSE (dict): A mapping of tags to sets of tags that should trigger auto-closing of the current tag.
+        INLINE_TAGS (set): A set of HTML tags that are considered inline elements.
     """
     VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
     AUTO_CLOSE = {
@@ -23,6 +34,7 @@ class Gardener(HTMLParser):
 
     def __init__(self):
         """
+        Initializes an instance of the Gardener class.
         """
         super().__init__()
         self.tag_counts = {}
@@ -46,7 +58,7 @@ class Gardener(HTMLParser):
             else:
                 break
 
-    def handle_starttag(self, tag_type, html_attributes):
+    def handle_starttag(self, tag_type: str, html_attributes: list[tuple[str, str]]) -> None:
         """
         """
         self._auto_close_before(tag_type)
@@ -71,7 +83,7 @@ class Gardener(HTMLParser):
         if tag_type not in self.VOID_TAGS:
             self.stack.append(node)
 
-    def handle_endtag(self, tag_type):
+    def handle_endtag(self, tag_type: str) -> None:
         """
         """
         for i in range(len(self.stack)-1, -1, -1):
@@ -80,7 +92,7 @@ class Gardener(HTMLParser):
                 break
         return
 
-    def handle_data(self, data):
+    def handle_data(self, data: str) -> None:
         """
         """
         stripped = data.strip()
@@ -117,8 +129,23 @@ class Gardener(HTMLParser):
             raw_html = raw_html.replace("</html>", "</body></html>", 1)
         return raw_html
     
-    def grow_tree(self, raw_html: str) -> None:
+    def grow_tree(self, raw_html: str) -> HTMLNode:
         """
+        Creates an HTMLNode tree from raw HTML input.
+
+        Args:
+            raw_html (str): The raw HTML string to be parsed.
+
+        Returns:
+            HTMLNode: The root node of the constructed HTMLNode tree.
+
+        Usage:
+            ```python
+            root_node = Gardener().grow_tree("<html><body><p>Hello, World!</p></body></html>")
+            ```
+
+        Warning:
+            Raises ScrapegoatParseException if the HTML cannot be parsed.
         """
         self.root = None
         self.stack = []
@@ -126,11 +153,25 @@ class Gardener(HTMLParser):
         self.reset()
 
         wrapped_html = self._append_root_tag(raw_html)
-        self.feed(wrapped_html)
+        try:
+            self.feed(wrapped_html)
+        except Exception as e:
+            raise ScrapegoatParseException(f"Failed to parse HTML: {str(e)}")
         return self.root
 
     def get_root(self) -> HTMLNode:
         """
+        Returns the root HTMLNode of the parsed HTML tree.
+
+        Returns:
+            HTMLNode: The root node of the HTMLNode tree.
+
+        Usage:
+            ```python
+            gardener = Gardener()
+            # grow a tree first, else root will be None.
+            root_node = gardener.get_root()
+            ```
         """
         return self.root
 

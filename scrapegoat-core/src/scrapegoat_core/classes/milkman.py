@@ -1,25 +1,61 @@
 """
 """
 
+from scrapegoat_core.exceptions import ScrapegoatIOException
+
+
 class Milkman:
     """
-    """
-    def __init__(self):
-        """
-        """
-        pass
+    The Milkman class is responsible for handling the file operations related to goatspeak scripts. It provides methods to read goatspeak scripts from files and deliver scraped results to specified destinations.
 
-    def deliver(self, results: list, deliver_command) -> None:
+    Hint:
+        This class is one of Scrapegoat's highly extendable classes. You can create your own Milkman subclass to implement custom file handling behavior to use with the Shepherd master class.
+    """
+    def deliver(self, results: list["HTMLNode"], deliver_command: "DeliverCommand") -> None: # type: ignore
         """
+        Delivers the scraped results using the specified DeliverCommand.
+
+        Args:
+            results (list): A list of scraped HTMLNode results.
+            deliver_command (DeliverCommand): The DeliverCommand object that specifies how to deliver the results.
+
+        Usage:
+            ```python
+            Milkman().deliver(results, deliver_command)
+            ```
+
+        Warning:
+            Raises ScrapegoatIOException if the delivery to the specified destination fails.
         """
-        deliver_command.execute(results)
+        try:
+            deliver_command.execute(results)
+        except Exception as e:
+            raise ScrapegoatIOException(f"Failed to save to file: {str(e)}")
         return
     
-    def receive(self, filepath) -> str:
+    def receive(self, filepath: str) -> str:
         """
+        Reads a goatspeak script from the specified file path.
+
+        Args:
+            filepath (str): The path to the goatspeak script file.
+
+        Returns:
+            str: The content of the goatspeak script file.
+
+        Usage:
+            ```python
+            goatspeak = Milkman().receive("path/to/script.goat")
+            ```
+
+        Warning:
+            Raises ScrapegoatReadFileException if the file cannot be read.
         """
-        with open(filepath, "r", encoding="utf-8") as f:
-            return f.read()
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            raise ScrapegoatIOException(f"Failed to read goatspeak file at {filepath}: {str(e)}")
 
 
 def main():

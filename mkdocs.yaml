@@ -1,0 +1,69 @@
+site_name: Scrapegoat Documentation
+site_url: https://chinaiarman.github.io/scrapegoat/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+      primary: deep purple
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+      primary: deep purple
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - scrapegoat-core/src
+            - scrapegoat-loom/src
+
+nav:
+  - Welcome to Scrapegoat: index.md
+  - Why use Scrapegoat?: why-scrapegoat.md
+  - Installation: installation.md
+  - Getting Started: getting-started.md
+  - Goatspeak: goatspeak.md
+  - Tutorials:
+      - Core Tutorial: tutorials/core-tutorial.md
+      - Loom Tutorial: tutorials/loom-tutorial.md
+      - CLI Tutorial: tutorials/cli-tutorial.md
+  - Core:
+      - Overview: core/index.md
+      - Classes:
+          - Block: core/classes/block.md
+          - Command: core/classes/command.md
+          - Conditions: core/classes/conditions.md
+          - Gardener: core/classes/gardener.md
+          - Goat: core/classes/goat.md
+          - Interpreter: core/classes/interpreter.md
+          - Milkmaid: core/classes/milkmaid.md
+          - Milkman: core/classes/milkman.md
+          - Node: core/classes/node.md
+          - Sheepdog: core/classes/sheepdog.md
+          - Shepherd: core/classes/shepherd.md
+      - Exceptions: core/exceptions.md
+  - Loom:
+      - Overview: loom/index.md
+      - Loom: loom/loom.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ChinaiArman/scrapegoat
