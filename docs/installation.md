@@ -96,13 +96,18 @@ This should display the help message for the Loom command-line interface.
 ## Linter and LSP Installation (Optional)
 Scrapegoat also offers a linter and Language Server Protocol (LSP) extension for enhanced development experience. 
 
-### Install Linter and LSP Extension
-To install the linter and LSP extension for VSCode, follow these steps:
+### Installation via GitHub
+Currently our LSP and linter extensions are not available on the VSCode marketplace.
+To install the Goatspeak linter and LSP extension, follow these steps:
 
-1. Open VSCode.
-2. Go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window or by pressing `Ctrl+Shift+X`.
-3. Search for "Goatspeak Language Support".
-4. Click on the "Install" button to install the extension.
+1. Clone the Scrapegoat repository using the command below.
+````bash
+git clone "https://github.com/ChinaiArman/scrapegoat.git"
+````
+1. Open VSCode and go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window or by pressing `Ctrl+Shift+X`.
+2. Click on the three-dot menu in the top-right corner of the Extensions view and select "Install from VSIX...".
+3. Navigate to the cloned `scrapegoat` repository and find the `goatspeak-language-support` folder.
+4. Select the `goatspeak-language-support` folder and click "Open" to install the extension.
 
 ### Verify Linter and LSP Installation
 
@@ -110,18 +115,6 @@ To verify that the linter and LSP extension is working, open a `.goat` file in V
 
 !!! success "Goatspeak Linter and LSP Installation Successful"
     You should see syntax highlighting and linting suggestions as you type.
-
-## Alternative Installation via GitHub
-If you prefer to install the package directly from the GitHub repository, you can do so by running the following command:
-````bash
-git clone "https://github.com/ChinaiArman/scrapegoat.git"
-````
-
-Then navigate to the cloned directory and install the package using pip:
-````bash
-cd scrapegoat/scrapegoat-core
-pip install .
-````
 
 ## Conclusion
 You have now successfully installed Scrapegoat and its optional extensions.
