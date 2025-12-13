@@ -1,12 +1,13 @@
 {
-    "name": "goat-language-support",
-    "displayName": "goat-language-support",
-    "description": "Language support for the Goatspeak language",
-    "version": "0.0.1",
+    "name": "goatspeak-language-support",
+    "displayName": "goatspeak-language-support",
+    "description": "Language support for the Goatspeak query language",
+    "version": "0.0.2",
     "repository": {
         "type": "git",
         "url": "https://github.com/ChinaiArman/scrapegoat.git"
     },
+    "publisher": "scrapegoat-dev",
     "engines": {
         "vscode": "^1.105.0"
     },
@@ -22,7 +23,6 @@
                     "goat"
                 ],
                 "extensions": [
-                    ".gql",
                     ".goat",
                     ".g",
                     ".goatspeak"
@@ -41,7 +41,8 @@
     "activationEvents": [],
     "main": "./out/client/src/extension.js",
     "scripts": {
-        "compile": "tsc -p ."
+        "compile": "tsc -p .",
+        "deploy": "vsce publish --yarn"
     },
     "dependencies": {
         "vscode-languageclient": "^9.0.1",
@@ -51,6 +52,7 @@
     "devDependencies": {
         "@types/node": "^20.19.24",
         "@types/vscode": "^1.105.0",
+        "@vscode/vsce": "^3.7.1",
         "typescript": "^5.9.3"
     }
 }
