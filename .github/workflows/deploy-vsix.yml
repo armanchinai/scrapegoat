@@ -1,0 +1,33 @@
+name: Deploy Goatspeak Language Support VSCode Extension
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # publish command e.g.: git tag v0.1.0; git push origin v0.1.0
+    paths:
+      - "goatspeak-language-support/**"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Publish extension
+        run: vsce publish -p $VSCE_PAT
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
