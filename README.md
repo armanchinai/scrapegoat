@@ -14,6 +14,7 @@ Below are all of Scrapegoat's links in one place for your convenience:
 - [Documentation Home](https://chinaiarman.github.io/scrapegoat/)
 - [Scrapegoat Core PyPI Package](https://pypi.org/project/scrapegoat-core/)
 - [Scrapegoat Loom PyPI Package](https://pypi.org/project/scrapegoat-loom/)
+- [Goatspeak Official Language Support - VSCode](https://marketplace.visualstudio.com/items?itemName=scrapegoat-dev.goatspeak-language-support)
 - [License](https://github.com/ChinaiArman/scrapegoat/blob/main/LICENSE)
 
 ## The Problem with Webscraping Today
