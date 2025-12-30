@@ -102,7 +102,7 @@ To install the Goatspeak linter and LSP extension, follow these steps:
 
 1. Clone the Scrapegoat repository using the command below.
 ````bash
-git clone "https://github.com/ChinaiArman/scrapegoat.git"
+git clone "https://github.com/armanchinai/scrapegoat.git"
 ````
 1. Open VSCode and go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window or by pressing `Ctrl+Shift+X`.
 2. Click on the three-dot menu in the top-right corner of the Extensions view and select "Install from VSIX...".

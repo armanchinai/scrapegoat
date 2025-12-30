@@ -10,11 +10,11 @@ Read on to discover how Scrapegoat can revolutionize your webscraping experience
 Is this page not what you are looking for?
 Below are all of Scrapegoat's links in one place for your convenience:
 
-- [GitHub Repository](https://github.com/ChinaiArman/scrapegoat)
-- [Documentation Home](https://chinaiarman.github.io/scrapegoat/)
+- [GitHub Repository](https://github.com/armanchinai/scrapegoat)
+- [Documentation Home](https://armanchinai.github.io/scrapegoat/)
 - [Scrapegoat Core PyPI Package](https://pypi.org/project/scrapegoat-core/)
 - [Scrapegoat Loom PyPI Package](https://pypi.org/project/scrapegoat-loom/)
-- [License](https://github.com/ChinaiArman/scrapegoat/blob/main/LICENSE)
+- [License](https://github.com/armanchinai/scrapegoat/blob/main/LICENSE)
 
 ## The Problem with Webscraping Today
 The webscraping experience is awful; it has been for a long time.
@@ -149,16 +149,12 @@ Responsible for developing the core architecture, designing the Goatspeak langua
         <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
     </a>
     <!-- GitHub -->
-    <a href="https://www.github.com/ChinaiArman">
+    <a href="https://www.github.com/armanchinai">
         <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
     </a>
     <!-- Email -->
-    <a href="mailto:chinaiarman@gmail.com">
+    <a href="mailto:armanchinai@gmail.com">
         <img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email">
-    </a>
-    <!-- Resume -->
-    <a href="https://drive.google.com/file/d/1wXxB1S-IMRh1rl_d2OXwuWumDsPIT15N/view?usp=sharing" target="_blank">
-        <img src="https://img.shields.io/badge/Resume-4285F4?style=for-the-badge&logo=google-drive&logoColor=white" alt="Resume">
     </a>
 </p>
 
