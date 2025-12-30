@@ -52,7 +52,7 @@ nav:
       - Core Tutorial: tutorials/core-tutorial.md
       - Loom Tutorial: tutorials/loom-tutorial.md
       - CLI Tutorial: tutorials/cli-tutorial.md
-      - Goatspeak Reference: tutorials/goatspeak-reference.md
+      - Goatspeak Reference: tutorials/goatspeak-tutorial.md
   - Core:
       - Overview: core/index.md
       - Classes:
